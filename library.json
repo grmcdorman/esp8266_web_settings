@@ -1,0 +1,21 @@
+{
+  "name": "esp8266_web_settings",
+  "keywords": "esp8266 webserver settings configuration",
+  "description": "ESP8266 library for generic web configuration with tabs",
+  "authors":
+  [
+    {
+      "name": "G. McDorman",
+      "maintainer": true
+    }
+  ],
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/grmcdorman/esp8266_web_settings.git"
+  },
+  "version": "0.0.1",
+  "license": "MIT",
+  "frameworks": "arduino",
+  "platforms": "*"
+}
