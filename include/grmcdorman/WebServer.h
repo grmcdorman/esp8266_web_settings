@@ -5,7 +5,7 @@
 #include <memory>
 
 #include <WString.h>
-#include <ESP8266WebServer.h>
+#include <ESPAsyncWebServer.h>
 
 #include "grmcdorman/SettingPanel.h"
 
@@ -22,14 +22,16 @@ namespace grmcdorman
         void loop();
         void add_setting_set(const String &name, const SettingInterface::settings_list_t &setting_set);
     private:
-        void on_not_found();
-        void on_request_values();
-        void on_request_upload();
-        void on_do_upload();
-        void on_upload_done();
+        void on_not_found(AsyncWebServerRequest *request);
+        void on_request_values(AsyncWebServerRequest *request);
+        void on_request_upload(AsyncWebServerRequest *request);
+        void on_do_upload(AsyncWebServerRequest *request);
+        void handle_upload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final);
+        void on_update_failed(AsyncWebServerRequest *request);
+        void on_update_done(AsyncWebServerRequest *request);
 
         notify_save_t on_save;
-        ESP8266WebServer server;
+        AsyncWebServer server;
         std::list<std::pair<String, SettingInterface::settings_list_t>> settings_set_list;
         std::list<std::unique_ptr<SettingPanel>> setting_panels;
     };

@@ -44,15 +44,15 @@ namespace grmcdorman
         return array;
     }
 
-    void SettingPanel::on_post(ESP8266WebServer &server)
+    void SettingPanel::on_post(AsyncWebServerRequest *request)
     {
         for(auto &setting: settings)
         {
             String argName = name + "$" + setting->name();
             Serial.println("Looking for " + argName);
-            if (server.hasArg(argName))
+            if (request->hasArg(argName.c_str()))
             {
-                setting->set_from_post(server.arg(argName));
+                setting->set_from_post(request->arg(argName));
             }
             else if (setting->send_to_ui())
             {

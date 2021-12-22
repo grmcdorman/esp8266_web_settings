@@ -162,7 +162,7 @@ namespace grmcdorman
             "</html>";
     }
 
-    WebServer::WebServer()
+    WebServer::WebServer(): server(80)
     {
     }
 
@@ -172,8 +172,8 @@ namespace grmcdorman
         if (!LittleFS.begin())
         {
             Serial.println("Unable to set up LittleFS");
-            server.on("/", HTTP_GET, [this] () {
-                server.send(500, "text/plain", "Failed to set up main page (could initialize LittleFS)");
+            server.on("/", HTTP_GET, [this] (AsyncWebServerRequest *request) {
+                request->send(500, "text/plain", "Failed to set up main page (could initialize LittleFS)");
             });
             return;
         }
@@ -182,8 +182,8 @@ namespace grmcdorman
         if (!mainPageFile)
         {
             Serial.println("Unable to set up LittleFS");
-            server.on("/", HTTP_GET, [this] () {
-                server.send(500, "text/plain", "Failed to set up main page (could not open file)");
+            server.on("/", HTTP_GET, [this] (AsyncWebServerRequest *request) {
+                request->send(500, "text/plain", "Failed to set up main page (could not open file)");
             });
             return;
         }
@@ -230,39 +230,38 @@ namespace grmcdorman
         mainPageFile.close();
         server.serveStatic("/", LittleFS, mainPagePath);
 
-        server.on("/settings/set", HTTP_POST, [this, on_save]()
+        server.on("/settings/set", HTTP_POST, [this, on_save](AsyncWebServerRequest *request)
                   {
                       for (auto &setting : setting_panels)
                       {
                           // Settings have unique IDs accross all tabs.
-                          setting->on_post(server);
+                          setting->on_post(request);
                       }
                       if (on_save != nullptr)
                       {
                           on_save(*this);
                       }
                       // The response from the save is the values set.
-                      on_request_values();
+                      on_request_values(request);
                   });
 
-        server.on("/settings/get", HTTP_GET, [this]()
+        server.on("/settings/get", HTTP_GET, [this](AsyncWebServerRequest *request)
                   {
-                      on_request_values();
+                      on_request_values(request);
                   });
 
-        server.on("/reboot", HTTP_GET, [this] ()
+        server.on("/reboot", HTTP_GET, [this] (AsyncWebServerRequest *request)
         {
-            server.send(200, "text/html", "Device is rebooting. <a href=\"/\">Back to root (after reboot)</a>");
+            request->send(200, "text/html", "Device is rebooting. <a href=\"/\">Back to root (after reboot)</a>");
             delay(1000);
             ESP.restart();
         });
 
-        server.on("/factoryreset", HTTP_GET, [this] ()
+        server.on("/factoryreset", HTTP_GET, [this] (AsyncWebServerRequest *request)
         {
-            Serial.println("Reset arg=" + server.arg("confirm"));
-            if (server.hasArg("confirm") && server.arg("confirm") == "true")
+            if (request->hasArg("confirm") && request->arg("confirm") == "true")
             {
-                server.send(200, "text/html", "Device is resetting. You will need to reconnect to the soft AP to configure afterwards.");
+                request->send(200, "text/html", "Device is resetting. You will need to reconnect to the soft AP to configure afterwards.");
                 delay(1000);
                 // Clear file system.
                 LittleFS.format();
@@ -273,22 +272,26 @@ namespace grmcdorman
             }
             else
             {
-                server.send(200, "text/html", "Reset to factory defaults not confirmed. <a href=\"/\">Back to root</a>");
+                request->send(200, "text/html", "Reset to factory defaults not confirmed. <a href=\"/\">Back to root</a>");
             }
         });
 
-        server.on("/upload", HTTP_GET, [this] {
-            on_request_upload();
+        server.on("/upload", HTTP_GET, [this] (AsyncWebServerRequest *request)
+        {
+            on_request_upload(request);
         });
 
-        server.on("/u", HTTP_POST, [this] {
-            on_do_upload();
+        server.on("/u", HTTP_POST, [this] (AsyncWebServerRequest *request)
+        {
+            // Not clear when this gets called...
+            on_do_upload(request);
         },
-        [this] {
-            on_upload_done();
+        [this] (AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final)
+        {
+            handle_upload(request, filename, index, data, len, final);
         });
 
-        server.onNotFound([this]() { on_not_found(); });
+        server.onNotFound([this](AsyncWebServerRequest *request) { on_not_found(request); });
 
         server.begin();
     }
@@ -300,29 +303,28 @@ namespace grmcdorman
 
     void WebServer::loop()
     {
-        server.handleClient();
+        // Asynchronous, nothing to see here. This is not the loop you are looking for.
     }
 
-    void WebServer::on_request_upload()
+    void WebServer::on_request_upload(AsyncWebServerRequest *request)
     {
         // The original text included a hard-coded redirect to a browser for the captive portal;
         // it assumes 192.168.4.1 for the device IP.
-        server.send(200, "text/html", "Upload New Firmware<br/>"
+        request->send(200, "text/html", "Upload New Firmware<br/>"
             "<form method='POST' action='u' enctype='multipart/form-data' onchange=\"(function(el){document.getElementById('uploadbin').style.display = el.value=='' ? 'none' : 'initial';})(this)\">"
             "<input type='file' name='update' accept='.bin,application/octet-stream'>"
             "<button id='uploadbin' type='submit' class='h D'>Update</button></form>");
     }
 
-    void WebServer::on_do_upload()
+    void WebServer::handle_upload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final)
     {
-        // Shamelessly taken from tzapu/WiFiManager
+        // Shamelessly adapted from tzapu/WiFiManager for Async web server
 
-        // handler for the file upload, get's the sketch bytes, and writes
+        // handler for the file upload, gets the sketch bytes, and writes
         // them through the Update object
-        HTTPUpload &upload = server.upload();
 
         // UPLOAD START
-        if (upload.status == UPLOAD_FILE_START)
+        if (index == 0)
         {
             uint32_t maxSketchSpace;
 
@@ -337,36 +339,55 @@ namespace grmcdorman
 
             if (!Update.begin(maxSketchSpace))
             {                 // start with max available size
-                Update.end(); // Not sure the best way to abort, I think client will keep sending..
+                on_update_failed(request);
+                Update.end();
+                return;
             }
         }
+
         // UPLOAD WRITE
-        else if (upload.status == UPLOAD_FILE_WRITE)
+        if (len != 0)
         {
-            if (Update.write(upload.buf, upload.currentSize) != upload.currentSize)
+            if (Update.write(data, len) != len)
             {
+                on_update_failed(request);
+                Update.end();
+                return;
             }
         }
+
         // UPLOAD FILE END
-        else if (upload.status == UPLOAD_FILE_END)
+        if (final)
         {
-            if (Update.end(true))
-            { // true to set the size to the current progress
-            }
-            else
+            if (!Update.end(true))
             {
-                Update.printError(Serial);
+                on_update_failed(request);
+                return;
             }
+
+            // This also checks for general update errors as well.
+            on_update_done(request);
         }
-        // UPLOAD ABORT
-        else if (upload.status == UPLOAD_FILE_ABORTED)
-        {
-            Update.end();
-        }
+
         delay(0);
     }
 
-    void WebServer::on_upload_done()
+    void WebServer::on_update_failed(AsyncWebServerRequest *request)
+    {
+        String page ("<div style='padding:20px;margin:20px 0;border:1px solid #eee;border-left-width:5px;border-left-color:#777;'><strong>Update Failed!</strong><Br/>Reboot device and try again<br/>");
+#ifdef ESP32
+        page += "OTA Error: " + (String)Update.errorString();
+#else
+        page += "OTA Error: " + (String)Update.getError();
+#endif
+        page += "</div>";
+
+        page += "</body></html>";
+
+        request->send(200, "text/html", page);
+    }
+
+    void WebServer::on_update_done(AsyncWebServerRequest *request)
     {
         // Shamelessly taken from tzapu/WiFiManager
         String page = "<!DOCTYPE html><html><body>Upload accepted.<br>";
@@ -388,7 +409,7 @@ namespace grmcdorman
 
         page += "</body></html>";
 
-        server.send(200, "text/html", page);
+        request->send(200, "text/html", page);
 
         if (!Update.hasError())
         {
@@ -397,7 +418,7 @@ namespace grmcdorman
         }
     }
 
-    void WebServer::on_request_values()
+    void WebServer::on_request_values(AsyncWebServerRequest *request)
     {
         // This is a very rough guess at the size needed.
         DynamicJsonDocument json(setting_panels.size()*512 + 64);
@@ -411,21 +432,20 @@ namespace grmcdorman
         std::unique_ptr<char[]> buffer(new char[size]);
         buffer.get()[0] = 0;
         serializeJson(json, buffer.get(), size);
-        server.send(200, "text/json", buffer.get());
+        request->send(200, "text/json", buffer.get());
     }
 
-    void WebServer::on_not_found()
+    void WebServer::on_not_found(AsyncWebServerRequest *request)
     {
         // In soft AP mode redirect to the root document.
-        if (WiFi.softAPgetStationNum() != 0 && !server.hostHeader().startsWith("http://" + WiFi.softAPIP().toString()))
+        if (WiFi.softAPgetStationNum() != 0 && !request->header("host").startsWith("http://" + WiFi.softAPIP().toString()))
         {
             String URL = "http://" + WiFi.softAPIP().toString() + "/";
-            server.sendHeader("Location", URL, true);
-            server.send(302, "text/plain", "");
+            request->redirect(URL);
         }
         else
         {
-            server.send(404, "text/html", "<!DOCTYPE html><html><body><H1>404 Page Not Found</H1><br><A HREF=\"/\">Return to root</A></body></html>");
+            request->send(404, "text/html", "<!DOCTYPE html><html><body><H1>404 Page Not Found</H1><br><A HREF=\"/\">Return to root</A></body></html>");
         }
     }
 }
