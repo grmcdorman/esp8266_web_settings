@@ -56,8 +56,10 @@ To include a single setting in the periodic update, include a Note setting with 
 The `SettingPanel` class is intended for internal use.
 
 Screenshots:
-![Info panel](images/Screenshot-info-panel.png?raw=true "Info Panel")
-![WiFi settings panel](images/Screenshot-wifi-settings-panel.png?raw=true "WiFi settings Panel")
+
+* Information panel (similar to the example below): ![Info panel](images/Screenshot-info-panel.png?raw=true "Info Panel")
+
+* A WiFi settings panel: ![WiFi settings panel](images/Screenshot-wifi-settings-panel.png?raw=true "WiFi settings Panel")
 
 Basic example:
 ```
