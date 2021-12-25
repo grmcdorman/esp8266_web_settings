@@ -8,11 +8,11 @@ This repository contains a generic Web page to manage your device settings. Sett
 * *Factory Reset*: Erase all settings on the device and reset.
 * *Upload Firmware*: Upload firmware to your device.
 
-Save, Reboot, Factory Reset and Uplod Firmware can be optionally password-protected.
+Save, Reboot, Factory Reset and Upload Firmware can be optionally password-protected.
 
 Settings on each tab are displayed in a two-column table.
 
-[Full documentation|https://grmcdorman.github.io/esp8266_web_settings/index.hitml]
+[Full documentation](https://grmcdorman.github.io/esp8266_web_settings/index.html)
 
 <h1>Usage</h1>
 The main class is [`WebServer`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_web_server.html). Create a single instance of this class, and then call its `add_setting_set`
@@ -22,7 +22,7 @@ There are several settings classes:
 
 * [`NoteSetting`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_notesetting.html). This "setting" isn't actually a setting; the content of the object is simply placed verbatim in a row spanning the two columns. It can contain arbitrary HTML. It is not updatable.
 * [`StringSetting`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_stringsetting.html): A setting containing a string. The string is not validated. The HTML is a single-line text input box.
-* [`PasswordSetting`)(https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_passwordsetting.html): A special setting, containing a _write-only_ password. The password is never sent to the web page; to change the password, the user will tick a check box to enable it and enter the password. The HTML is a password input box.
+* [`PasswordSetting`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_passwordsetting.html): A special setting, containing a _write-only_ password. The password is never sent to the web page; to change the password, the user will tick a check box to enable it and enter the password. The HTML is a password input box.
 * [`SignedIntegerSetting`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_signedintegersetting.html). A setting containing a signed integer. The HTML is a numeric input box with no constraints.
 * [`UnsignedIntegerSetting`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_unsignedintegersetting.html). A setting containing an unsigned integer. The HTML is a numeric input box with a minimum of 0.
 * [`FloatSetting`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_floatsetting.html). A setting containing a floating-point value. The HTML is a numeric input box with no constraints.
@@ -46,11 +46,18 @@ or for a single setting. However, do **not** update the entire panel if it inclu
 every 5 seconds.
 
 To include an entire panel in the periodic update, include a Note setting with the following text, replacing **panel name** with the actual panel name:
+
 `window.addEventListener(\"load\", () => { periodicUpdateList.push("panel name"); });`
+
 To include a single setting in the periodic update, include a Note setting with the following text, again replacing **panel name** and **setting name**:
+
 ``window.addEventListener(\"load\", () => { periodicUpdateList.push("panel name&setting=setting name"); });`
 
 The `SettingPanel` class is intended for internal use.
+
+Screenshots:
+![Info panel](images/Screenshot-info-panel.ng?raw=true "Info Panel")
+![WiFi settings panel](images/Screenshot-wifi-settings-panel.ng?raw=true "WiFi settings Panel")
 
 Basic example:
 ```
