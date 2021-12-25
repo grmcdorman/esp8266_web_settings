@@ -6,57 +6,64 @@
 
 namespace grmcdorman
 {
-    SettingPanel::SettingPanel(const String &name, const SettingInterface::settings_list_t &settings_set): name(name), settings(settings_set)
+    namespace {
+        const char * PROGMEM NAME_STR = "name";
+        const char * PROGMEM VALUE_STR = "value";
+    }
+    SettingPanel::SettingPanel(const __FlashStringHelper *name, const SettingInterface::settings_list_t &settings_set):
+        name(name),
+        name_length(strlen_P(reinterpret_cast<const char *>(name))),
+        settings(settings_set)
     {
     }
 
-    String SettingPanel::body() const
-    {
-        String message("<table>");
-
-        for(const auto &setting: settings)
-        {
-            message +=  setting->html(name);
-        }
-        message += "</table>";
-        return message;
-    }
-
-    DynamicJsonDocument SettingPanel::as_json() const
+    DynamicJsonDocument SettingPanel::as_json(const String &specific_setting) const
     {
         if (settings.size() == 0)
         {
-            return DynamicJsonDocument(1);
+            DynamicJsonDocument doc(JSON_ARRAY_SIZE(1));
+            doc.to<JsonArray>();
+            return doc;
         }
 
-        size_t stateSize = 512 + 1024 * settings.size();
-        DynamicJsonDocument array(stateSize);
+        // Sizing is critical here. Too small, and the document is incomplete;
+        // too large, and it may not allocate at all - also resulting in an
+        // incomplete document. Short of ad-hoc text as JSON or other hacks
+        // to perform chunked output, this is not really scalable.
+        bool all = specific_setting.isEmpty();
+        size_t stateSize = JSON_ARRAY_SIZE(settings.size()) + 512 * settings.size();
+        DynamicJsonDocument doc(stateSize);
+        doc.capacity();
+        JsonArray array = doc.to<JsonArray>();
         for(auto &setting: settings)
         {
-            if (setting->name().length() != 0 && setting->send_to_ui())
+            auto len = strlen_P(reinterpret_cast<const char *>(setting->name()));
+            if (len != 0 && setting->send_to_ui() && (all || specific_setting == setting->name()))
             {
-                DynamicJsonDocument valueJson(1024);
-                valueJson["name"] = name + "$" + setting->name();
-                valueJson["value"] = setting->as_string();
+                auto value = setting->as_string();
+                DynamicJsonDocument valueJson(len + value.length() + 128);
+                valueJson[FPSTR(NAME_STR)] = setting->name();
+                valueJson[FPSTR(VALUE_STR)] = value;
                 array.add(valueJson);
             }
         }
-        return array;
+
+        return doc;
     }
 
     void SettingPanel::on_post(AsyncWebServerRequest *request)
     {
         for(auto &setting: settings)
         {
-            String argName = name + "$" + setting->name();
-            Serial.println("Looking for " + argName);
+            String argName(get_name());
+            argName += '$';
+            argName += setting->name();
             if (request->hasArg(argName.c_str()))
             {
                 setting->set_from_post(request->arg(argName));
             }
             else if (setting->send_to_ui())
             {
-                Serial.println("Set to default");
                 setting->set_default();
             }
         }

@@ -1,7 +1,10 @@
 #pragma once
 
-#include <WString.h>
+#include <functional>
 #include <vector>
+
+#include <pgmspace.h>
+#include <WString.h>
 
 namespace grmcdorman
 {
@@ -12,6 +15,7 @@ namespace grmcdorman
      */
     class SettingInterface
     {
+    public:
     protected:
         /**
          * @brief Construct a new Setting Interface object
@@ -19,16 +23,16 @@ namespace grmcdorman
          * @param description       The setting description. This is interpreted as HTML; format appropriately.
          * @param setting_name      The unique setting name. This must be unique for the container. It can be empty for notes.
          */
-        SettingInterface(const String &description, const String &setting_name);
+        SettingInterface(const __FlashStringHelper *description, const __FlashStringHelper *setting_name);
     public:
         typedef std::vector<SettingInterface *> settings_list_t;
         /**
-         * @brief Return the HTML fragment for this setting.
+         * @brief Stream the HTML fragment for the setting.
          *
          * @param container_name    The unique container name (system -wide). Used to generate a unique field identifier.
-         * @return String containing the HTML fragment.
+         * @return HTML for the setting.
          */
-        virtual String html(const String &container_name) const = 0;
+        virtual String get_html(const String &container_name) const = 0;
         /**
          * @brief Set the value from a string.
          *
@@ -61,15 +65,16 @@ namespace grmcdorman
          */
         virtual void set_default() = 0;
         /**
-         * @brief Get the setting's unique name.
+         * @brief Get the setting's name.
          *
-         * This name is constructed from the container name and setting name.
+         * This name is from the constructor, and should be
+         * unique within its container.
          *.
          * @return Unique setting name.
          */
-        const String &name() const
+        const __FlashStringHelper *name() const
         {
-            return generated_name;
+            return FPSTR(setting_name);
         }
         /**
          * @brief Get the description string.
@@ -78,9 +83,9 @@ namespace grmcdorman
          *
          * @return Description string.
          */
-        const String &get_description() const
+        const __FlashStringHelper *get_description() const
         {
-            return description;
+            return FPSTR(description);
         }
         /**
          * @brief Get the label HTML fragment for this setting.
@@ -92,7 +97,7 @@ namespace grmcdorman
          * @param input_name    The unique (system-wide) name for the input element.
          * @return HTML label.
          */
-        String html_label(const String &input_name) const;
+        String get_html_label(const String &input_name) const;
         /**
          * @brief Get the value as a string.
          *
@@ -118,32 +123,73 @@ namespace grmcdorman
         {
             return true;
         }
+
+        /**
+         * @brief Whether to persist this setting in flash.
+         *
+         * Some settings should not be saved, notably notes & info.
+         *
+         * @return true     if this setting should be saved
+         */
+        virtual bool is_persistable() const
+        {
+            return true;
+        }
+
     protected:
         /**
-         * @brief Make a label and an INPUT field.
+         * @brief Output an INPUT field and a LABEL field.
          *
          * This constructs a full INPUT field of the given type. The
-         * returned HTML includes the `html_label` followed by the constructed
-         * input field.
+         * output HTML includes the constructed input field, followed
+         * by the label for the field.
          *
-         * @param type          The INPUT type, e.g. NUMBER.
-         * @param input_name    The unique (system-wide) name for the input element.
-         * @param value         The initial value.
-         * @param extra         Additional fields.
-         * @return The input field.
+         * @note Will produce syntatically correct but unusable output if
+         * the setting's name is blank.
+         *
+         * @param type              The INPUT type, e.g. NUMBER.
+         * @param container_name    The unique container name (system -wide). Used to generate a unique field identifier.
+         * @param value             The initial value.
+         * @param extra             Additional fields. `nullptr` if no fields are to be provided.
+         * @return Constructed INPUT field.
          */
-        String make_input(const char *type, const String &input_name, const String &value, const String &extra = String()) const;
+        String get_make_input(const __FlashStringHelper *type, const String &container_name, const String &value, const __FlashStringHelper * extra) const;
         /**
-         * @brief Make the HTML for a label and arbitrary input.
+         * @brief Output the HTML for an arbitrary input and label.
          *
-         * This returns the `html_label` followed by the provided text
-         * in `setting_html`, verbatim.
+         * This outputs the text in `setting_html`, verbatim, followed by a LABEL field.
          *
-         * @param input_name    The unique (system-wide) name for the input element.
-         * @param setting_html  The setting HTML; for example a SELECT list.
-         * @return The label followed by the setting html.
+         * @note Will produce syntatically correct but unusable output if
+         * the setting's name is blank.
+         *
+         * @param container_name    The unique container name (system -wide). Used to generate a unique field identifier.
+         * @param setting_html      The setting HTML; for example a SELECT list.
+         * @return Constructed HTML.
          */
-        String make_html(const String &input_name, const String &setting_html) const;
+        String get_make_html(const String &input_name, const String &setting_html) const;
+        /**
+         * @brief Stream out the unique control ID.
+         *
+         * This streams out the container name, a '$', and the setting name. It
+         * is used in other context where the control ID is required.
+         *
+         * @note Will produce syntatically correct but unusable output if
+         * the setting's name is blank.
+         *
+         * @param container_name    The unique container name (system -wide). Used to generate a unique field identifier.
+         * @return HTML text.
+         */
+        String get_unique_id(const String &container_name) const;
+        /**
+         * @brief Return `id=` and `name=` attributes.
+         *
+         * @note Will produce syntatically correct but unusable output if
+         * the setting's name is blank.
+         *
+         * @param container_name    The unique container name (system -wide). Used to generate a unique field identifier.
+         * @return The two fields.
+         */
+        String get_id_name_fields(const String &container_name) const;
         /**
          * @brief Escape a value appropriately for an input value field.
          *
@@ -152,8 +198,8 @@ namespace grmcdorman
          */
         String escape_value(const String &value) const;
     private:
-        String description;         /// The description string from the constructor.
-        String generated_name;      /// The assigned unique name.
+        const __FlashStringHelper *description;   /// The description from the constructor.
+        const __FlashStringHelper *setting_name;  /// The name from the constructor.
     };
 
     /**
@@ -177,7 +223,7 @@ namespace grmcdorman
          * @param description       The setting description. This is interpreted as HTML; format appropriately.
          * @param setting_name      The unique setting name. This must be unique for the container. It can be empty for notes.
          */
-        GenericSetting(const String &description, const String &setting_name):
+        GenericSetting(const __FlashStringHelper *description, const __FlashStringHelper *setting_name):
             SettingInterface(description, setting_name), value()
         {
         }
@@ -227,7 +273,7 @@ namespace grmcdorman
         {
             value = T();
         }
-    private:
+    protected:
         T value;    /// The contained value.
     };
 
@@ -243,7 +289,7 @@ namespace grmcdorman
      * The note text can be changed after construction; this may not have any
      * effect on the web page.
      */
-    class NoteSetting: public GenericSetting<String>
+    class NoteSetting: public GenericSetting<const __FlashStringHelper *>
     {
     public:
         /**
@@ -251,8 +297,8 @@ namespace grmcdorman
          *
          * @param value         The note value. Can contain HTML.
          */
-        explicit NoteSetting(const String &value):
-            GenericSetting("not used", String())
+        explicit NoteSetting(const __FlashStringHelper *value):
+            GenericSetting(F("not used"), F(""))
         {
             set(value);
         }
@@ -260,11 +306,13 @@ namespace grmcdorman
         /**
          * @brief Return the HTML.
          *
-         * In this case, it is simply the note value.
-         * @param container_name    The container name. Not used.
-         * @return The note text.
+         * In this case, it is simply the note value. No interpolation
+         * or other processing is performed on the HTML.
+         *
+         * @param container_name    The unique container name (system -wide). Used to generate a unique field identifier.
+         * @return HTML text.
          */
-        String html(const String &container_name) const override;
+        String get_html(const String &container_name) const override;
 
         /**
          * @brief Set the note value.
@@ -277,6 +325,11 @@ namespace grmcdorman
         {
             // This does not do anything. The string value
             // is the HTML note.
+        }
+
+        bool is_persistable() const override
+        {
+            return false;
         }
     };
 
@@ -295,19 +348,19 @@ namespace grmcdorman
          * @param description       The setting description. This is interpreted as HTML; format appropriately.
          * @param setting_name      The unique setting name. This must be unique for the container. It can be empty for notes.
          */
-        StringSetting(const String &description, const String &setting_name):
+        StringSetting(const __FlashStringHelper *description, const __FlashStringHelper *setting_name):
             GenericSetting(description, setting_name)
         {
         }
         /**
          * @brief Return the HTML for the setting.
          *
-         * For a string setting, this will be `<INPUT TYPE="TEXT">`.
+         * For a string setting, this will be of the form `<INPUT TYPE="TEXT">`.
          *
-         * @param container_name    The container name. Used to construct a unique field ID.
-         * @return The HTML for a string input.
+         * @param container_name    The unique container name (system -wide). Used to generate a unique field identifier.
+         * @return HTML text..
          */
-        String html(const String &container_name) const override;
+        String get_html(const String &container_name) const override;
         /**
          * @brief Set the value from a string.
          *
@@ -327,12 +380,14 @@ namespace grmcdorman
      *
      * This is functionally similar to a string setting, except that
      * the field is flagged as a password, so that it is protected.
+     * In addition, the password is never sent to the UI; in the UI,
+     * the user must enable a toggle to indicate the password is
+     * being entered. This allows blank passwords if necessary.
      *
-     * @note The password is still sent to the web page; anyone who
-     * can access the page will be able to retrieve the password.
-     * In the future, this may be changed to provide broader
-     * controls (e.g. a 'change password' toggle and two password inputs,
-     * one for verification). External semantics may remain the same.
+     * If the toggle is not checked, the password input field is
+     * disabled and is not sent by the browser; hence any saved
+     * password is not changed.
+     *
      */
     class PasswordSetting: public StringSetting
     {
@@ -343,47 +398,117 @@ namespace grmcdorman
          * @param description       The setting description. This is interpreted as HTML; format appropriately.
          * @param setting_name      The unique setting name. This must be unique for the container. It can be empty for notes.
          */
-        PasswordSetting(const String &description, const String &setting_name):
+        PasswordSetting(const __FlashStringHelper *description, const __FlashStringHelper *setting_name):
             StringSetting(description, setting_name)
         {
         }
+
+        /// The password field does not send data to the UI.
         bool send_to_ui() const override
         {
             return false;
         }
-        String html(const String &container_name) const override;
+        String get_html(const String &container_name) const override;
     };
 
+    /**
+     * @brief A signed integer setting.
+     *
+     * This is a 32-bit integer with no other restrictions on the value.
+     *
+     */
     class SignedIntegerSetting: public GenericSetting<int32_t>
     {
     public:
-        SignedIntegerSetting(const String &description, const String &setting_name):
+        SignedIntegerSetting(const __FlashStringHelper *description, const __FlashStringHelper *setting_name):
             GenericSetting(description, setting_name)
         {
         }
-        String html(const String &container_name) const override;
+        /**
+         * @brief Stream the HTML for the setting.
+         *
+         * For a signed integer, this will be a simple input of the form `<INPUT TYPE="NUMBER">`.
+         *
+         * @param container_name    The unique container name (system -wide). Used to generate a unique field identifier.
+         * @return HTML text.
+         */
+        String get_html(const String &container_name) const override;
+        /**
+         * @brief Set the value from a string.
+         *
+         * This does not report validation errors; non-numeric values
+         * will simply result in a zero being stored.
+         *
+         * @param new_value New value, as a string.
+         */
         void set_from_string(const String &new_value) override;
     };
 
+    /**
+     * @brief An unsigned integer setting.
+     *
+     * Identical to a signed integer, save that the input field is given a minimum value of 0.
+     *
+     */
     class UnsignedIntegerSetting: public GenericSetting<uint32_t>
     {
     public:
-        UnsignedIntegerSetting(const String &description, const String &setting_name):
+        UnsignedIntegerSetting(const __FlashStringHelper *description, const __FlashStringHelper *setting_name):
             GenericSetting(description, setting_name)
         {
         }
-        String html(const String &container_name) const override;
+        /**
+         * @brief Stream the HTML for the setting.
+         *
+         * For an unsigned integer, this will be a simple input of the form `<INPUT TYPE="NUMBER" MAX="0">`.
+         *
+         * @param container_name    The unique container name (system -wide). Used to generate a unique field identifier.
+         * @return HTML text.
+         */
+        String get_html(const String &container_name) const override;
+        /**
+         * @brief Set the value from a string.
+         *
+         * This does not report validation errors; non-numeric values
+         * will simply result in a zero being stored. Too-large values
+         * will also result in invalid values.
+         *
+         * @param new_value New value, as a string.
+         */
         void set_from_string(const String &new_value) override;
     };
 
+    /**
+     * @brief A floating-point setting.
+     *
+     * From an HTML standpoint, identical to a signed integer, save that the input field is given a step of 0.1,
+     * allowing one digit of precision.
+     *
+     */
     class FloatSetting: public GenericSetting<float>
     {
     public:
-        FloatSetting(const String &description, const String &setting_name):
+        FloatSetting(const __FlashStringHelper *description, const __FlashStringHelper *setting_name):
             GenericSetting(description, setting_name)
         {
         }
-        String html(const String &container_name) const override;
+        /**
+         * @brief Stream the HTML for the setting.
+         *
+         * For a floating point, this will be a simple input of the form `<INPUT TYPE="NUMBER" STEP="0.1">`.
+         *
+         * @param container_name    The unique container name (system -wide). Used to generate a unique field identifier.
+         * @return HTML text.
+         */
+        String get_html(const String &container_name) const override;
+        /**
+         * @brief Set the value from a string.
+         *
+         * This does not report validation errors; non-numeric values
+         * will simply result in a zero being stored.
+         *
+         * @param new_value New value, as a string.
+         */
         void set_from_string(const String &new_value) override;
     };
 
@@ -396,6 +521,7 @@ namespace grmcdorman
     class ExclusiveOptionSetting: public GenericSetting<uint16_t>
     {
     public:
+        typedef std::vector<const __FlashStringHelper *> names_list_t;
         /**
          * @brief Construct a new Exclusive Option Setting object.
          *
@@ -403,14 +529,14 @@ namespace grmcdorman
          * @param setting_name  The name for the setting. Must be identifier-like.
          * @param optionNames   The set of option names. Can include HTML.
          */
-        ExclusiveOptionSetting(const String &description, const String &setting_name,
-            const std::vector<String> &optionNames):
+        ExclusiveOptionSetting(const __FlashStringHelper *description, const __FlashStringHelper *setting_name,
+            const names_list_t &optionNames):
             GenericSetting(description, setting_name), names(optionNames)
         {
         }
 
         /**
-         * @brief Return the exclusive-setting HTML.
+         * @brief Stream the exclusive-setting HTML.
          *
          * This constructs a `SELECT` HTML with the option list.
          *
@@ -421,10 +547,10 @@ namespace grmcdorman
          *
          * @note Option names are not escaped; it is possible to include HTML
          * in the name.
-         * @param container_name    Container name; used as a prefix for the SELECT ID.
+         * @param container_name    The unique container name (system -wide). Used to generate a unique field identifier.
          * @return The constructed HTML.
          */
-        String html(const String &container_name) const override; // dropdown or radio buttons
+        String get_html(const String &container_name) const override; // dropdown or radio buttons
         /**
          * @brief Set the option from a string value.
          *
@@ -443,17 +569,29 @@ namespace grmcdorman
          */
         String as_string() const override;
     private:
-        std::vector<String> names;
+        const names_list_t &names;
     };
 
+    /**
+     * @brief A toggle setting, otherwise known as a checkbox.
+     *
+     */
     class ToggleSetting: public GenericSetting<bool>
     {
     public:
-        ToggleSetting(const String &description, const String &setting_name):
+        ToggleSetting(const __FlashStringHelper *description, const __FlashStringHelper *setting_name):
             GenericSetting(description, setting_name)
         {
         }
-        String html(const String &container_name) const override;
+        /**
+         * @brief Stream the toggle HTML.
+         *
+         * For a toggle, this will be of the form `<INPUT TYPE='CHECKBOX'>`.
+         *
+         * @param container_name    The unique container name (system -wide). Used to generate a unique field identifier.
+         * @return The constructed HTML.
+         */
+        String get_html(const String &container_name) const override;
         /**
          * @brief Set the value from a string.
          *
@@ -476,14 +614,88 @@ namespace grmcdorman
             set(true);
         }
 
+        /**
+         * @brief Return the toggle, as a string.
+         *
+         * This will return "1" for `true` and "0" for `false`.
+         * @return String
+         */
+
         String as_string() const override
         {
-            return get() ? "1": "0";
+            return String(get() ? '1': '0');
         }
     };
 
-    class InfoSetting: public GenericSetting<String>
+    /**
+     * @brief An info setting is a read-only string setting.
+     *
+     * On the UI, it is presented with the value simply
+     * output as-is (no HTML encoding). The value
+     * will be updated when values are fetched from
+     * the server.
+     *
+     * The Web Server provides a mechanism for periodic updates;
+     * in JavaScript, adding the tab name, or the tab name, an ampersand, and
+     * the string "setting=" followed by the setting name to the array `periodicUpdateList` will result in
+     * the value being fetched approximately every 5 seconds. For example,
+     * if the tab is "Overview" and the setting is "uptime", then:
+     *  * `window.addEventListener(\"load\", () => { periodicUpdateList.push("Overview"); });` will update all fields on the tab periodically;
+     *  * `window.addEventListener(\"load\", () => { periodicUpdateList.push("Overview&setting=uptime"); });` will fetch and update the "uptime" field periodically.
+     *
+     * Avoid updating an entire tab if it contains input fields; the update will refresh the input
+     * fields as well as the other fields.
+     *
+     * The value will also be requested on initial page load, and when the user clicks "Reset Form".
+     */
+    class InfoSettingHtml: public StringSetting
     {
+    public:
+        InfoSettingHtml(const __FlashStringHelper *description, const __FlashStringHelper *setting_name):
+            StringSetting(description, setting_name), request_callback(nullptr)
+        {
+        }
 
+        /**
+         * @brief Set the request callback.
+         *
+         * The request callback is invoked just before the setting's value is provided
+         * to a request by the UI. The callback can update the setting if necessary.
+         *
+         * A value of `nullptr` can be used to disable the callback.
+         *
+         * @param callback  Callback function to invoke before sending the value to UI.
+         */
+        void set_request_callback(const std::function<void(const InfoSettingHtml &)>& callback)
+        {
+            request_callback = callback;
+        }
+        /**
+         * @brief Stream the toggle HTML.
+         *
+         * For an info setting, this will be a SPAN containing the value, and
+         * a LABEL field for the SPAN.
+         *
+         * @param container_name    The unique container name (system -wide). Used to generate a unique field identifier.
+         * @return The constructed HTML.
+         */
+        String get_html(const String &container_name) const override;
+        void set_from_post(const String &) override
+        {
+            // Ignored.
+        }
+        void set_default() override
+        {
+            // Ignored. This is not sent from the front-end, but is set _to_ the front-end.
+        }
+
+        String as_string() const override;
+
+        bool is_persistable() const override
+        {
+            return false;
+        }
+   private:
+        std::function<void(const InfoSettingHtml &)> request_callback;
     };
 }

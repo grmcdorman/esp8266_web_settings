@@ -2,11 +2,22 @@
 #include <Arduino.h>
 #include <algorithm>
 
+#include <stddef.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <string.h>
+
 namespace grmcdorman
 {
-    SettingInterface::SettingInterface(const String & description, const String &setting_name):
+    namespace {
+        const char * PROGMEM DIV_STR = "<div>";
+        auto DIV = FPSTR(DIV_STR);
+        const char * PROGMEM NUMBER_STR = "number";
+        auto NUMBER = FPSTR(NUMBER_STR);
+    }
+    SettingInterface::SettingInterface(const __FlashStringHelper *description, const __FlashStringHelper *setting_name):
         description(description),
-        generated_name(setting_name)
+        setting_name(setting_name)
     {
     }
 
@@ -19,16 +30,16 @@ namespace grmcdorman
             switch (ch)
             {
             case '<':
-                escaped_value += "&lt;";
+                escaped_value += F("&lt;");
                 break;
             case '>':
-                escaped_value += "&gt;";
+                escaped_value += F("&gt;");
                 break;
             case '\"':
-                escaped_value += "&quot;";
+                escaped_value += F("&quot;");
                 break;
             case '&':
-                escaped_value += "&amp;";
+                escaped_value += F("&amp;");
                 break;
             default:
                 escaped_value += ch;
@@ -39,46 +50,72 @@ namespace grmcdorman
         return escaped_value;
     }
 
-    String SettingInterface::html_label(const String &input_name) const
+    String SettingInterface::get_unique_id(const String &container_name) const
     {
-        return "<LABEL FOR=\"" + input_name + "\">" + get_description() + "</LABEL>";
+        String result(container_name);
+        result += '$';
+        result += name();
+        return result;
     }
 
-    String SettingInterface::make_html(const String &input_name, const String &element_html) const
+    String SettingInterface::get_id_name_fields(const String &container_name) const
     {
-        return
-            "<TR><TD>" +
-            html_label(input_name) +
-            "</TD><TD>" +
-            element_html +
-            "</TD></TR>\n";
+        String id = get_unique_id(container_name);
+        String result(static_cast<const char *>(nullptr));
+        result.reserve(4 + // id=
+                       2*id.length() +
+                       8 + // " name="
+                       1 // closing quote
+        );
+        result = F("id=\"");
+        result += id;
+        result += F("\" name=\"");
+        result += std::move(id);
+        result += '"';
+        return result;
     }
 
-    String SettingInterface::make_input(const char *type, const String &input_name, const String &value, const String &extra) const
+    String SettingInterface::get_html_label(const String &container_name) const
+    {
+        String result(F("<label for=\""));
+        result += get_unique_id(container_name);
+        result += F("\">");
+        result += get_description();
+        result += F("</label>");
+        return result;
+    }
+
+    String SettingInterface::get_make_html(const String &container_name, const String &element_html) const
+    {
+        String result(element_html);
+        result += get_html_label(container_name);
+        return result;
+    }
+
+    String SettingInterface::get_make_input(const __FlashStringHelper *type, const String &container_name, const String &value, const __FlashStringHelper *extra) const
     {
         // Note that while values are reloaded when the tab is selected,
         // initial values are required so that `save` doesn't get the wrong
         // data if the tab is never loaded.
-        return make_html(input_name,
-            "<INPUT TYPE=\"" +
-            String(type) +
-            "\" NAME=\"" +
-            input_name +
-            "\" ID=\"" +
-            input_name +
-            "\" VALUE=\"" +
-            escape_value(as_string()) +
-            "\" " +
-            extra +
-            " />");
+        String result(F("<input type=\""));
+        result += type;
+        result += F("\" ");
+        result += get_id_name_fields(container_name);
+        if (extra != nullptr)
+        {
+            result += extra;
+        }
+        result += F(" />");
+        result += get_html_label(container_name);
+        return result;
     }
 
-    String StringSetting::html(const String &container_name) const
+    String StringSetting::get_html(const String &container_name) const
     {
-        return make_input("TEXT", container_name + "$" + name(), escape_value(get()), " SIZE=\"45\"");
+        return get_make_input(F("text"), container_name, escape_value(get()), nullptr);
     }
 
-    String PasswordSetting::html(const String &container_name) const
+    String PasswordSetting::get_html(const String &container_name) const
     {
         // A password is very special.
         // In UI terms, the user can:
@@ -90,24 +127,35 @@ namespace grmcdorman
         // The solution, below, is to have the field disabled by default;
         // if checked, the field will become enabled, the user can enter values,
         // and it will be submitted.
-        String id = container_name + "$" + name();
-        String html("<INPUT TYPE=\"CHECKBOX\" ID=\"");
-        html += container_name + "@changepassword$" + name();
-        html += "\" onchange='"
-            "document.getElementById(\"" +  id + "\").disabled = !event.target.checked;"
-            "'";
-        html += "><INPUT TYPE=\"PASSWORD\" ID=\"" + id + "\" NAME=\"" + id + "\" DISABLED=\"TRUE\" SIZE=\"45\">";
-        return make_html(id, html);
+        String result(F("<span class=\"password_group\">"));
+        result += F("<input type=\"checkbox\" id=\"");
+        result += container_name;
+        result += F("$pw$");
+        result += name();
+        result += F("\" onchange='"
+            "document.getElementById(\"");
+        result += get_unique_id(container_name);
+        result += F("\").disabled = !event.target.checked;"
+            "'"
+            "><input type=\"password\" ");
+        result += get_id_name_fields(container_name);
+        result += F(" disabled=\"true\"></span>");
+        result += get_html_label(container_name);
+        return result;
     }
 
-    String SignedIntegerSetting::html(const String &container_name) const
+    String SignedIntegerSetting::get_html(const String &container_name) const
     {
-        return make_input("NUMBER", container_name + "$" + name(), String(get()), String());
+        return get_make_input(NUMBER, container_name, String(get()), nullptr);
     }
 
-    String NoteSetting::html(const String &) const
+    String NoteSetting::get_html(const String &) const
     {
-        return "<TR><TD COLSPAN=\"2\">" + get() + "</TD></TR>\n";
+        String result(F("<div class=\"note\">"));
+        result += get();
+        static const char * PROGMEM DIV_END = "</div>";
+        result += FPSTR(DIV_END);
+        return result;
     }
 
     void SignedIntegerSetting::set_from_string(const String &new_value)
@@ -116,20 +164,20 @@ namespace grmcdorman
         set(static_cast<value_type>(new_value.toInt()));
     }
 
-    String UnsignedIntegerSetting::html(const String &container_name) const
+    String UnsignedIntegerSetting::get_html(const String &container_name) const
     {
-        return make_input("NUMBER", container_name + "$" + name(), String(get()), " MIN=\"0\"");
+        return get_make_input(NUMBER, container_name, String(get()), F(" min=\"0\""));
     }
 
     void UnsignedIntegerSetting::set_from_string(const String &new_value)
     {
         // n.b. does not handle invalid values in any meaningful way
-        set(static_cast<value_type>(new_value.toInt()));
+        set(static_cast<value_type>(std::strtoul(new_value.c_str(), nullptr, 10)));
     }
 
-    String FloatSetting::html(const String &container_name) const
+    String FloatSetting::get_html(const String &container_name) const
     {
-        return make_input("NUMBER", container_name + "$" + name(), String(get()));
+        return get_make_input(NUMBER, container_name, String(get()), F(" step=\"0.1\""));
     }
 
     void FloatSetting::set_from_string(const String &new_value)
@@ -137,35 +185,39 @@ namespace grmcdorman
         set(new_value.toFloat());
     }
 
-    String ExclusiveOptionSetting::html(const String &container_name) const
+    String ExclusiveOptionSetting::get_html(const String &container_name) const
     {
-        String result;
-        String input_name = container_name + "$" + name();
-        size_t reserve = 29 + input_name.length(); // size for <SELECT NAME="NAME"></SELECT>"
-        for(const auto &option: names)
-        {
-            reserve += option.length() + input_name.length() + 3 +  26; // <option name="name_n">value</option>
-        }
-        result.reserve(reserve);
-        result += "<SELECT NAME=\"" + input_name + "\" ID=\"" + input_name + "\">";
+        String id(get_unique_id(container_name));
+        String result(F("<select "));
+        result += get_id_name_fields(container_name);
+        result += F(" \">");
         uint16_t index = 0;
         for (const auto &option: names)
         {
             ++index;
-            result += "<OPTION NAME=\"" + input_name + "_" + String(index) + "\"";
+            result += F("<option name=\"");
+            result += id;
+            result += F("_");
+            result += index;
+            result += F("\"");
             if (index == get() + 1)
             {
-                result += " SELECTED";
+                result += F(" selected");
             }
-            result += ">" + option + "</OPTION>";
+            result += F(">");
+            result += option;
+            result += F("</option>");
         }
-        result += "</SELECT>";
-        return make_html(input_name, result);
-    }
+        result += F("</select>");
+        result += get_html_label(container_name);
+        return result;
+   }
 
     void ExclusiveOptionSetting::set_from_string(const String &new_value)
     {
-        auto where = std::find(names.begin(), names.end(), new_value);
+        auto where = std::find_if(names.begin(), names.end(), [&new_value] (const __FlashStringHelper *value)
+            { return new_value == String(value); }
+        );
         set(where != names.end() ? where - names.begin() : 0);
     }
 
@@ -174,15 +226,34 @@ namespace grmcdorman
         return names[std::max(static_cast<value_type>(0), std::min(static_cast<value_type>(names.size()), get()))];
     }
 
-    String ToggleSetting::html(const String &container_name) const
+    String ToggleSetting::get_html(const String &container_name) const
     {
-        return make_input("CHECKBOX", container_name + "$" + name(), "", get() ? " CHECKED" : "");
+        return get_make_input(F("checkbox"), container_name, "", nullptr);
     }
 
     void ToggleSetting::set_from_string(const String &new_value)
     {
-        String copy(new_value);
-        copy.toLowerCase();
-        set(new_value == "1" || copy == "true" || copy == "on");
+        set(strcasecmp(new_value.c_str(), "true") == 0 ||
+            strcasecmp(new_value.c_str(), "on") == 0 ||
+            new_value == "1");
+    }
+
+    String InfoSettingHtml::get_html(const String &container_name) const
+    {
+        String result(F("<span class=\"info\" "));
+        result += get_id_name_fields(container_name);
+        result += '>';
+        result += F("</span>");
+        result += get_html_label(container_name);
+        return result;
+   }
+
+    String InfoSettingHtml::as_string() const
+    {
+        if (request_callback != nullptr)
+        {
+            request_callback(*this);
+        }
+        return get();
     }
 }
