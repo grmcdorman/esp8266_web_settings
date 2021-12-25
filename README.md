@@ -51,13 +51,13 @@ To include an entire panel in the periodic update, include a Note setting with t
 
 To include a single setting in the periodic update, include a Note setting with the following text, again replacing **panel name** and **setting name**:
 
-``window.addEventListener(\"load\", () => { periodicUpdateList.push("panel name&setting=setting name"); });`
+`window.addEventListener(\"load\", () => { periodicUpdateList.push("panel name&setting=setting name"); });`
 
 The `SettingPanel` class is intended for internal use.
 
 Screenshots:
-![Info panel](images/Screenshot-info-panel.ng?raw=true "Info Panel")
-![WiFi settings panel](images/Screenshot-wifi-settings-panel.ng?raw=true "WiFi settings Panel")
+![Info panel](images/Screenshot-info-panel.png?raw=true "Info Panel")
+![WiFi settings panel](images/Screenshot-wifi-settings-panel.png?raw=true "WiFi settings Panel")
 
 Basic example:
 ```
