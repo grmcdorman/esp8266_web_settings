@@ -15,20 +15,20 @@ Settings on each tab are displayed in a two-column table.
 [Full documentation](https://grmcdorman.github.io/esp8266_web_settings/index.html)
 
 <h1>Usage</h1>
-The main class is [`WebServer`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_web_server_html.html). Create a single instance of this class, and then call its `add_setting_set`
-with lists of settings to create each panel in the web page.
+
+The main class is [`WebServer`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_web_server.html). Create a single instance of this class, and then call its `add_setting_set` with lists of settings to create each panel in the web page.
 
 There are several settings classes:
 
-* [`NoteSetting`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_notesetting_html.html). This "setting" isn't actually a setting; the content of the object is simply placed verbatim in a row spanning the two columns. It can contain arbitrary HTML. It is not updatable.
-* [`StringSetting`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_stringsetting_html.html): A setting containing a string. The string is not validated. The HTML is a single-line text input box.
-* [`PasswordSetting`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_passwordsetting_html.html): A special setting, containing a _write-only_ password. The password is never sent to the web page; to change the password, the user will tick a check box to enable it and enter the password. The HTML is a password input box.
-* [`SignedIntegerSetting`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_signedintegersetting_html.html). A setting containing a signed integer. The HTML is a numeric input box with no constraints.
-* [`UnsignedIntegerSetting`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_unsignedintegersetting_html.html). A setting containing an unsigned integer. The HTML is a numeric input box with a minimum of 0.
-* [`FloatSetting`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_floatsetting_html.html). A setting containing a floating-point value. The HTML is a numeric input box with no constraints.
-* [`ExclusiveOptionSetting`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_exclusiveoptionsetting_html.html). A setting presented as a drop-down list.
-* [`ToggleSetting`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_togglesetting_html.html). A setting containing a boolean; presented as a checkbox.
-* [`InfoSetting`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_infosetting_html.html). A "setting" that displays information that can be updated every 5 seconds. It can contain arbitrary HTML.
+* [`NoteSetting`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_note_setting.html). This "setting" isn't actually a setting; the content of the object is simply placed verbatim in a row spanning the two columns. It can contain arbitrary HTML. It is not updatable.
+* [`StringSetting`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_string_setting.html): A setting containing a string. The string is not validated. The HTML is a single-line text input box.
+* [`PasswordSetting`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_password_setting.html): A special setting, containing a _write-only_ password. The password is never sent to the web page; to change the password, the user will tick a check box to enable it and enter the password. The HTML is a password input box.
+* [`SignedIntegerSetting`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_signed_integer_setting.html). A setting containing a signed integer. The HTML is a numeric input box with no constraints.
+* [`UnsignedIntegerSetting`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_unsigned_integer_setting.html). A setting containing an unsigned integer. The HTML is a numeric input box with a minimum of 0.
+* [`FloatSetting`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_float_setting.html). A setting containing a floating-point value. The HTML is a numeric input box with no constraints.
+* [`ExclusiveOptionSetting`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_exclusive_option_setting.html). A setting presented as a drop-down list.
+* [`ToggleSetting`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_toggle_setting.html). A setting containing a boolean; presented as a checkbox.
+* [`InfoSettingHtml`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_info_setting_html.html). A "setting" that displays information that can be updated every 5 seconds. It can contain arbitrary HTML.
 
 Public methods in the [`WebServer`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_web_server_html.html) class:
 
