@@ -25,7 +25,7 @@ namespace grmcdorman
          */
         SettingInterface(const __FlashStringHelper *description, const __FlashStringHelper *setting_name);
     public:
-        typedef std::vector<SettingInterface *> settings_list_t;
+        typedef std::vector<SettingInterface *> settings_list_t;    //!< The container for a list of settings.
         /**
          * @brief Stream the HTML fragment for the setting.
          *
@@ -69,7 +69,7 @@ namespace grmcdorman
          *
          * This name is from the constructor, and should be
          * unique within its container.
-         *.
+         *
          * @return Unique setting name.
          */
         const __FlashStringHelper *name() const
@@ -166,7 +166,7 @@ namespace grmcdorman
          * @param setting_html      The setting HTML; for example a SELECT list.
          * @return Constructed HTML.
          */
-        String get_make_html(const String &input_name, const String &setting_html) const;
+        String get_make_html(const String &container_name, const String &setting_html) const;
         /**
          * @brief Stream out the unique control ID.
          *
@@ -198,8 +198,8 @@ namespace grmcdorman
          */
         String escape_value(const String &value) const;
     private:
-        const __FlashStringHelper *description;   /// The description from the constructor.
-        const __FlashStringHelper *setting_name;  /// The name from the constructor.
+        const __FlashStringHelper *description;   //!< The description from the constructor.
+        const __FlashStringHelper *setting_name;  //!< The name from the constructor.
     };
 
     /**
@@ -228,7 +228,7 @@ namespace grmcdorman
         {
         }
 
-        typedef T value_type;   /// The type of the wrapped value.
+        typedef T value_type;   //!< The type of the wrapped value.
 
         /**
          * @brief Get the value.
@@ -274,7 +274,7 @@ namespace grmcdorman
             value = T();
         }
     protected:
-        T value;    /// The contained value.
+        T value;    //!< The contained value.
     };
 
     /**
@@ -327,6 +327,12 @@ namespace grmcdorman
             // is the HTML note.
         }
 
+        /**
+         * @brief Whether to persist this setting in flash.
+         *
+         * For notes, this always returns `false`.
+         * @return `false`: do not save the note in flash.
+         */
         bool is_persistable() const override
         {
             return false;
@@ -403,7 +409,13 @@ namespace grmcdorman
         {
         }
 
-        /// The password field does not send data to the UI.
+        /**
+         * @brief Whether to send the value to the UI on request.
+         *
+         * For a password setting, this will always return `false`.
+         *
+         * @return false    Do not send the value to the UI.
+         */
         bool send_to_ui() const override
         {
             return false;
@@ -420,6 +432,12 @@ namespace grmcdorman
     class SignedIntegerSetting: public GenericSetting<int32_t>
     {
     public:
+        /**
+         * @brief Construct a new Signed Integer Setting object
+         *
+         * @param description       The setting description. This is interpreted as HTML; format appropriately.
+         * @param setting_name      The unique setting name. This must be unique for the container. It can be empty for notes.
+         */
         SignedIntegerSetting(const __FlashStringHelper *description, const __FlashStringHelper *setting_name):
             GenericSetting(description, setting_name)
         {
@@ -453,6 +471,12 @@ namespace grmcdorman
     class UnsignedIntegerSetting: public GenericSetting<uint32_t>
     {
     public:
+        /**
+         * @brief Construct a new Unsigned Integer Setting object
+         *
+         * @param description       The setting description. This is interpreted as HTML; format appropriately.
+         * @param setting_name      The unique setting name. This must be unique for the container. It can be empty for notes.
+         */
         UnsignedIntegerSetting(const __FlashStringHelper *description, const __FlashStringHelper *setting_name):
             GenericSetting(description, setting_name)
         {
@@ -488,6 +512,12 @@ namespace grmcdorman
     class FloatSetting: public GenericSetting<float>
     {
     public:
+        /**
+         * @brief Construct a new Float Setting object
+         *
+         * @param description       The setting description. This is interpreted as HTML; format appropriately.
+         * @param setting_name      The unique setting name. This must be unique for the container. It can be empty for notes.
+         */
         FloatSetting(const __FlashStringHelper *description, const __FlashStringHelper *setting_name):
             GenericSetting(description, setting_name)
         {
@@ -521,7 +551,7 @@ namespace grmcdorman
     class ExclusiveOptionSetting: public GenericSetting<uint16_t>
     {
     public:
-        typedef std::vector<const __FlashStringHelper *> names_list_t;
+        typedef std::vector<const __FlashStringHelper *> names_list_t;  //!< The container for a list of option names.
         /**
          * @brief Construct a new Exclusive Option Setting object.
          *
@@ -569,7 +599,7 @@ namespace grmcdorman
          */
         String as_string() const override;
     private:
-        const names_list_t &names;
+        const names_list_t &names;      //!< The option names.
     };
 
     /**
@@ -579,6 +609,12 @@ namespace grmcdorman
     class ToggleSetting: public GenericSetting<bool>
     {
     public:
+        /**
+         * @brief Construct a new Toggle Setting object
+         *
+         * @param description       The setting description. This is interpreted as HTML; format appropriately.
+         * @param setting_name      The unique setting name. This must be unique for the container. It can be empty for notes.
+         */
         ToggleSetting(const __FlashStringHelper *description, const __FlashStringHelper *setting_name):
             GenericSetting(description, setting_name)
         {
@@ -602,12 +638,13 @@ namespace grmcdorman
          */
         void set_from_string(const String &new_value) override;
         /**
-         * @brief Set the value from an HTML post.
+         * @brief Set the value from an HTML Post string.
          *
-         * For toggles, _any_ value set - regardless of contents -
-         * is `true`, and the field will be missing when `false`
-         * (meaning `set_default` gets called instead).
+         *  For toggles, this always sets the toggle to `true`,
+         * as, in HTML forms, the mere presence of the toggle
+         * in the form data means it's checked.
          *
+         * The parameter is not used.
          */
         void set_from_post(const String &) override
         {
@@ -651,6 +688,12 @@ namespace grmcdorman
     class InfoSettingHtml: public StringSetting
     {
     public:
+        /**
+         * @brief Construct a new Info Setting Html object
+         *
+         * @param description       The setting description. This is interpreted as HTML; format appropriately.
+         * @param setting_name      The unique setting name. This must be unique for the container. It can be empty for notes.
+         */
         InfoSettingHtml(const __FlashStringHelper *description, const __FlashStringHelper *setting_name):
             StringSetting(description, setting_name), request_callback(nullptr)
         {
@@ -671,7 +714,7 @@ namespace grmcdorman
             request_callback = callback;
         }
         /**
-         * @brief Stream the toggle HTML.
+         * @brief Stream the info HTML.
          *
          * For an info setting, this will be a SPAN containing the value, and
          * a LABEL field for the SPAN.
@@ -680,10 +723,24 @@ namespace grmcdorman
          * @return The constructed HTML.
          */
         String get_html(const String &container_name) const override;
+        /**
+         * @brief Set the value from an HTML Post string.
+         *
+         * For info settings, this is ignored; the setting cannot be changed
+         * from HTML form submissions.
+         *
+         * The parameter is not used.
+         */
         void set_from_post(const String &) override
         {
             // Ignored.
         }
+        /**
+         * @brief Set to the default.
+         *
+         * For info settings, this is ignored.
+         *
+         */
         void set_default() override
         {
             // Ignored. This is not sent from the front-end, but is set _to_ the front-end.
@@ -691,6 +748,13 @@ namespace grmcdorman
 
         String as_string() const override;
 
+        /**
+         * @brief Whether to persist this setting in flash.
+         *
+         * For info settings, this always returns `false`.
+         *
+         * @return `false`: do not save the info setting in flash.
+         */
         bool is_persistable() const override
         {
             return false;

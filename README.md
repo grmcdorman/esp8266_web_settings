@@ -12,20 +12,25 @@ Save, Reboot, Factory Reset and Uplod Firmware can be optionally password-protec
 
 Settings on each tab are displayed in a two-column table.
 
+[Full documentation|html/index.hitml]
+
 <h1>Usage</h1>
+The main class is [`WebServer`|html/classgrmcdorman_1_1_web_server.html]. Create a single instance of this class, and then call its `add_setting_set`
+with lists of settings to create each panel in the web page.
+
 There are several settings classes:
 
-* `NoteSetting`. This "setting" isn't actually a setting; the content of the object is simply placed verbatim in a row spanning the two columns. It can contain arbitrary HTML. It is not updatable.
-* `StringSetting`: A setting containing a string. The string is not validated. The HTML is a single-line text input box.
-* `PasswordSetting`: A special setting, containing a _write-only_ password. The password is never sent to the web page; to change the password, the user will tick a check box to enable it and enter the password. The HTML is a password input box.
-* `SignedIntegerSetting`. A setting containing a signed integer. The HTML is a numeric input box with no constraints.
-* `UnsignedIntegerSetting`. A setting containing an unsigned integer. The HTML is a numeric input box with a minimum of 0.
-* `FloatSetting`. A setting containing a floating-point value. The HTML is a numeric input box with no constraints.
-* `ExclusiveOptionSetting`. A setting presented as a drop-down list.
-* `ToggleSetting`. A setting containing a boolean; presented as a checkbox.
-* `InfoSetting`. A "setting" that displays information that can be updated every 5 seconds. It can contain arbitrary HTML.
+* [`NoteSetting`|html/classgrmcdorman_1_1_notesetting.html]. This "setting" isn't actually a setting; the content of the object is simply placed verbatim in a row spanning the two columns. It can contain arbitrary HTML. It is not updatable.
+* [`StringSetting`|html/classgrmcdorman_1_1_stringsetting.html]: A setting containing a string. The string is not validated. The HTML is a single-line text input box.
+* [`PasswordSetting|html/classgrmcdorman_1_1_passwordsetting.html]`: A special setting, containing a _write-only_ password. The password is never sent to the web page; to change the password, the user will tick a check box to enable it and enter the password. The HTML is a password input box.
+* [`SignedIntegerSetting`|html/classgrmcdorman_1_1_signedintegersetting.html]. A setting containing a signed integer. The HTML is a numeric input box with no constraints.
+* [`UnsignedIntegerSetting`|html/classgrmcdorman_1_1_unsignedintegersetting.html]. A setting containing an unsigned integer. The HTML is a numeric input box with a minimum of 0.
+* [`FloatSetting`|html/classgrmcdorman_1_1_floatsetting.html]. A setting containing a floating-point value. The HTML is a numeric input box with no constraints.
+* [`ExclusiveOptionSetting`|html/classgrmcdorman_1_1_exclusiveoptionsetting.html]. A setting presented as a drop-down list.
+* [`ToggleSetting`|html/classgrmcdorman_1_1_togglesetting.html]. A setting containing a boolean; presented as a checkbox.
+* [`InfoSetting`|html/classgrmcdorman_1_1_infosetting.html]. A "setting" that displays information that can be updated every 5 seconds. It can contain arbitrary HTML.
 
-Public methods in the `WebServer` class:
+Public methods in the [`WebServer`|html/classgrmcdorman_1_1_web_server.html] class:
 
 * `WebServer(uint16_t port = 80)`: Construct a new Web server; optionally specify the port.
 * `void setup(const notify_t &on_save, const notify_t &on_restart, const notify_t &on_factory_reset)`: Set up to handle requests.
@@ -33,11 +38,21 @@ Public methods in the `WebServer` class:
 * `void set_credentials(const String &user, const String &password)`: Set credentials for save, reset, factory reset, and upload operations.
 * `AsyncWebServer &get_server()`: Get the internal web server.
 
-Settings are complex, see the generated documentation or source for details.
+For the most part, use the `get()` and `set()` methods in the Settings classes to retrieve and set values. The [`InfoSetting`|html/classgrmcdorman_1_1_infosetting.html] contains an additional method, `set_request_callback()`; this callback is invoked just before the InfoSetting's value is sent to the web page for an update. Thus, by setting
+this callback, you can dynamically update data on the web page.
+
+For each settings set, or panel, some JavaScript must be provided to include the panel in the periodic update. This can be done for the entire panel,
+or for a single setting. However, do **not** update the entire panel if it includes input fields; doing so will result in the input fields being reset
+every 5 seconds.
+
+To include an entire panel in the periodic update, include a Note setting with the following text, replacing **panel name** with the actual panel name:
+`window.addEventListener(\"load\", () => { periodicUpdateList.push("panel name"); });`
+To include a single setting in the periodic update, include a Note setting with the following text, again replacing **panel name** and **setting name**:
+``window.addEventListener(\"load\", () => { periodicUpdateList.push("panel name&setting=setting name"); });`
 
 The `SettingPanel` class is intended for internal use.
 
-Example:
+Basic example:
 ```
 #include <ESP8266WiFi.h>
 #include <LittleFS.h>

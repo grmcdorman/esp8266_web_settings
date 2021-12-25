@@ -20,8 +20,8 @@ namespace grmcdorman
         const char * PROGMEM TEXT_END_DIV_STR = "</div>";
         auto TEXT_END_DIV = FPSTR(TEXT_END_DIV_STR);
         const char * PROGMEM status_div = "<div class=\"status\">";
-        /// The style sheet. This could be stored gzipp'd to save space
-        /// and sent to the client that way.
+        //!< The style sheet. This could be stored gzipp'd to save space
+        //!< and sent to the client that way.
         const char *style PROGMEM =
             ".tab {"
                 "overflow: hidden;"
@@ -193,8 +193,8 @@ namespace grmcdorman
             "}"
         ;
 
-        /// The Javascript sheet. This could be stored gzipp'd to save space
-        /// and sent to the client that way.
+        //!< The Javascript sheet. This could be stored gzipp'd to save space
+        //!< and sent to the client that way.
         const char *javascript_text PROGMEM =
             "function openTab(evt, tabName) {\n"
                 "var i, tabcontent, tablinks;\n"
@@ -778,7 +778,7 @@ namespace grmcdorman
 
     void WebServer::on_request_upload(AsyncWebServerRequest *request)
     {
-        /// @TODO This should have better styling.
+        //!< @TODO This should have better styling.
         request->send(200, TEXT_HTML, F("<!DOCTYPE html>"
             "<link rel=\"stylesheet\" href=\"/style.css\">"
             "<html><body><H1>Upload New Firmware</H1>"

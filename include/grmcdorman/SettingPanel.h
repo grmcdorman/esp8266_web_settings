@@ -12,7 +12,7 @@ namespace grmcdorman
     /**
      * @brief The Setting Panel is the controller for a set of Setting.
      *
-     * It manages streaming of the HTML for the set, reading the values in from
+     * It manages reading the values in from
      * a POST request, and constructing the output JSON for the values when requested
      * by the UI.
      */
@@ -50,8 +50,8 @@ namespace grmcdorman
          * The settings are inserted in the output document as an array under the key
          * containing the panel name.
          *
-         * @param specific_setting      Include only the specific, named setting. If the setting does not exist, return an empty array.
-         * @return DynamicJsonDocument  Document to receive the settings.
+         * @param specific_setting      If not empty, include only the specific, named setting. If the setting does not exist, return an empty array.
+         * @return JSON document containing all settings (if `specific_setting` is empty) or the single requested setting.
          */
         DynamicJsonDocument as_json(const String &specific_setting) const;
         /**
@@ -85,8 +85,8 @@ namespace grmcdorman
             return settings;
         }
     private:
-        const __FlashStringHelper * name;                   /// The panel name, from the constructor.
-        const size_t name_length;                           /// The length of the name string.
-        const SettingInterface::settings_list_t &settings;  /// The set of settings contained in the panel.
+        const __FlashStringHelper * name;                   //!< The panel name, from the constructor.
+        const size_t name_length;                           //!< The length of the name string.
+        const SettingInterface::settings_list_t &settings;  //!< The set of settings contained in the panel.
     };
 }

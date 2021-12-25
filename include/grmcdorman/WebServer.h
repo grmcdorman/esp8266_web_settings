@@ -12,21 +12,25 @@
 namespace grmcdorman
 {
     /**
-     * @brief An implementation of a Web Server supporting setting panels.
+     * @mainpage esp8266_web_settings Detailed Documentation
+     *
+     * @section intro_sec Introduction
+     * An implementation of a Web Server supporting setting panels.
      *
      * HTTPS is not supported. Minimal authentication - a single id/password - is supported for save, reboot, factory defaults, and upload.
      *
+     * @section overview_sec Overview
      * The server supports the following pages or requests:
-     *   "/": The root page. This contains the setting panels, and five buttons, `Save`, `Reset Form`, `Reboot`, `Factory Defaults`, and `Uplaod Firmware`.
-     *   "/style.css": CSS styles for the root page.
-     *   "/script.js": JavaScript for the root page.
-     *   "/settings/get": This path requires at least one parameter, the setting tab name. The values for that tab are returned as JSON.
+     *  * "/": The root page. This contains the setting panels, and five buttons, `Save`, `Reset Form`, `Reboot`, `Factory Defaults`, and `Uplaod Firmware`.
+     *  * "/style.css": CSS styles for the root page.
+     *  * "/script.js": JavaScript for the root page.
+     *  * "/settings/get": This path requires at least one parameter, the setting tab name. The values for that tab are returned as JSON.
      *     Example: "/settings/get?tab=Overview"
-     *   "/settings/set": Handles POST of the form data from the main page. When all data has been transferred to the settings, the `on_save` callback is invoked.
-     *   "/reboot": Call the `on_restart` callback. Performs no other action. Unprotected.
-     *   "/factoryreset": Call the `on_factory_reset` callback. Performs no other action. Unprotected.
-     *   "/upload": Show the upload page; this allows firmware uploads. Unprotected.
-     *   "/upload": POST request; upload firmware. Unprotected.
+     *  * "/settings/set": Handles POST of the form data from the main page. When all data has been transferred to the settings, the `on_save` callback is invoked.
+     *  * "/reboot": Call the `on_restart` callback. Performs no other action. Unprotected.
+     *  * "/factoryreset": Call the `on_factory_reset` callback. Performs no other action. Unprotected.
+     *  * "/upload": Show the upload page; this allows firmware uploads. Unprotected.
+     *  * "/upload": POST request; upload firmware. Unprotected.
      *
      * If the `on_restart` or `on_factory_reset` callbacks are not provided (i.e. are null), the associated URLs will
      * not be registered. The '/upload' URL will also not be registered if the `on_restart` callback is null.
@@ -45,16 +49,24 @@ namespace grmcdorman
      *
      * The `on_factory_reset` callback should set a flag to indcate a factory reset has been requested, and perform
      * this in the main loop after a short delay. To reset, the following operations should be performed:
-     *  - `LittleFS.format()` and/or `TinyFS.format()`, depending on which file systems are in use.
+     *   `LittleFS.format()` and/or `TinyFS.format()`, depending on which file systems are in use.
      *  - `ESP.eraseConfig()`.
      *  - `ESP.reset()`.
      *
      * This uses the ESP Asynch Web Server to serve the page.
      */
+
+    /**
+     * @brief The WebServer class.
+     *
+     * This is the primary class for the library; it handles the web pages
+     * and manages the sets of settings.
+     *
+     */
     class WebServer
     {
     public:
-        typedef void (*notify_t)(WebServer &);      /// The callback definition.
+        typedef void (*notify_t)(WebServer &);      //!< The callback definition.
 
         /**
          * @brief Construct a new Web Server object.
@@ -85,7 +97,7 @@ namespace grmcdorman
          * on the main page. The first set registered will be the default set shown when the
          * page is first loaded.
          *
-         * All settings must be added before `setup` is called.
+         * Settings can be added after `setup` is called; current pages in browsers will not be updated, however..
          *
          * @param name          The name for the set; also the name shown on the tab.
          * @param setting_set   The set of settings. Held as a reference; do not destroy the object passed in.
@@ -128,9 +140,9 @@ namespace grmcdorman
     private:
         typedef std::list<std::unique_ptr<SettingPanel>> setting_panel_list_t;
 
-        void on_not_found(AsyncWebServerRequest *request);          /// Handle page not found; either 404 or 302 redirect, depending on SoftAP mode.
-        void on_request_values(AsyncWebServerRequest *request);     /// Handle a request for values.
-        void on_request_upload(AsyncWebServerRequest *request);     /// Handle a request to upload firmware. Presents a page to allow a file upload.
+        void on_not_found(AsyncWebServerRequest *request);          //!< Handle page not found; either 404 or 302 redirect, depending on SoftAP mode.
+        void on_request_values(AsyncWebServerRequest *request);     //!< Handle a request for values.
+        void on_request_upload(AsyncWebServerRequest *request);     //!< Handle a request to upload firmware. Presents a page to allow a file upload.
 
         /**
          * @brief Handle upload of a firmware file segment.
@@ -163,22 +175,22 @@ namespace grmcdorman
          */
         void on_update_done(AsyncWebServerRequest *request);
 
-        /// States for the main page chunk transmission.
+        //!< States for the main page chunk transmission.
         enum class MainPageChunkState {
-            BEGIN_PAGE,         /// Sending the initial portion.
-            TABBUTTON_HEADER,   /// Sending the tab button header.
-            TAB_BODY,           /// Sending the tab bodies.
-            FOOTER,             /// Sending the footer.
-            DONE                /// Completed seting.
+            BEGIN_PAGE,         //!< Sending the initial portion.
+            TABBUTTON_HEADER,   //!< Sending the tab button header.
+            TAB_BODY,           //!< Sending the tab bodies.
+            FOOTER,             //!< Sending the footer.
+            DONE                //!< Completed seting.
         };
 
-        /// This structure holds tracking context for sending the main page.
+        //!< This structure holds tracking context for sending the main page.
         struct MainPageChunkContext
         {
-            MainPageChunkState state = MainPageChunkState::BEGIN_PAGE;          /// The current state.
-            setting_panel_list_t::const_iterator current_panel;                 /// Where applicable, the panel being processed.
-            SettingInterface::settings_list_t::const_iterator current_setting;  /// Where applicable, the setting in the panel being processed.
-            bool starting_tab = true;                                           /// If `true`, a tab body is to be started.
+            MainPageChunkState state = MainPageChunkState::BEGIN_PAGE;          //!< The current state.
+            setting_panel_list_t::const_iterator current_panel;                 //!< Where applicable, the panel being processed.
+            SettingInterface::settings_list_t::const_iterator current_setting;  //!< Where applicable, the setting in the panel being processed.
+            bool starting_tab = true;                                           //!< If `true`, a tab body is to be started.
         };
 
         /**
@@ -253,18 +265,18 @@ namespace grmcdorman
          */
         void generate_new_authentication();
 
-        notify_t on_save;           /// The on-save callback. Can be null.
-        notify_t on_restart;        /// The on restart callback. Can be null.
-        notify_t on_factory_reset;  /// The on factory reset callback. Can be null.
+        notify_t on_save;           //!< The on-save callback. Can be null.
+        notify_t on_restart;        //!< The on restart callback. Can be null.
+        notify_t on_factory_reset;  //!< The on factory reset callback. Can be null.
 
-        AsyncWebServer server;      /// The web server.
+        AsyncWebServer server;      //!< The web server.
 
-        setting_panel_list_t setting_panels;    /// The setting panels.
+        setting_panel_list_t setting_panels;    //!< The setting panels.
 
-        String auth_user;           /// The authentication name.
-        String auth_password;       /// The authentication password.
-        char auth_realm[17];        /// Set to a random string in the constructor, and after every successfull authentication.
-        String last_auth_digest;    /// Last authentication digest. Generated whenever auth_realm changes.
+        String auth_user;           //!< The authentication name.
+        String auth_password;       //!< The authentication password.
+        char auth_realm[17];        //!< Set to a random string in the constructor, and after every successfull authentication.
+        String last_auth_digest;    //!< Last authentication digest. Generated whenever auth_realm changes.
 
     };
 }
