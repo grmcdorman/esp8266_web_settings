@@ -29,12 +29,15 @@ namespace grmcdorman
         /**
          * @brief Handle a POST set-values request.
          *
-         * All settings are updated from the incoming request; if a setting
+         * All settings that are updated from the incoming request; if a setting
          * does not appear, it is updated with its default (`set_default()`)
          * if it is a setting that is sent on requests (`send_to_ui()` is `true`).
          *
          * Passwords are the only present case where `send_to_ui()` is `false`,
          * meaning they are only set if explicitly included in the POST request.
+         *
+         * Note that some settings, notably note and info settings, ignore any attempt
+         * to set a value from this call.
          * @param request
          */
         void on_post(AsyncWebServerRequest *request);
@@ -72,13 +75,18 @@ namespace grmcdorman
             return name_length;
         }
 
+        /**
+         * @brief Get the settings list.
+         *
+         * @return The wrapped settings list.
+         */
         const SettingInterface::settings_list_t &get_settings() const
         {
             return settings;
         }
     private:
         const __FlashStringHelper * name;                   /// The panel name, from the constructor.
-        const size_t name_length;
+        const size_t name_length;                           /// The length of the name string.
         const SettingInterface::settings_list_t &settings;  /// The set of settings contained in the panel.
     };
 }
