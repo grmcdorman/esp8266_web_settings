@@ -57,23 +57,23 @@ namespace grmcdorman
      */
 
     /**
-     * @brief The WebServer class.
+     * @brief The WebSettings class.
      *
      * This is the primary class for the library; it handles the web pages
      * and manages the sets of settings.
      *
      */
-    class WebServer
+    class WebSettings
     {
     public:
-        typedef void (*notify_t)(WebServer &);      //!< The callback definition.
+        typedef void (*notify_t)(WebSettings &);      //!< The callback definition.
 
         /**
          * @brief Construct a new Web Server object.
          *
          * @param port The server port; default is 80.
          */
-        explicit WebServer(uint16_t port = 80);
+        explicit WebSettings(uint16_t port = 80);
         /**
          * @brief Set up the web server.
          *

@@ -1,21 +1,20 @@
 #include <ArduinoJson.h>
-#include <ArduinoOTA.h>
 #include <DNSServer.h>
 #include <ESP8266WiFi.h>
 #include <LittleFS.h>
 #include <WString.h>
 
-#include <grmcdorman/WebServer.h>
+#include <grmcdorman/WebSettings.h>
 
 // Forward declarations
 static void wifi_setup();
 static std::optional<DynamicJsonDocument> LoadConfig();
 
-// Forward declarations for the three WebServer callbacks.
+// Forward declarations for the three web_settings callbacks.
 
-static void on_factory_reset(::grmcdorman::WebServer &);
-static void on_restart(::grmcdorman::WebServer &);
-static void on_save(::grmcdorman::WebServer &);
+static void on_factory_reset(::grmcdorman::WebSettings &);
+static void on_restart(::grmcdorman::WebSettings &);
+static void on_save(::grmcdorman::WebSettings &);
 
 ///////////////////////////////////////////////////////////////////////////////////
 // The WiFi settings.
@@ -57,7 +56,7 @@ static ::grmcdorman::SettingInterface::settings_list_t
 // Path to the config file
 static const char config_path[] PROGMEM = "/config.json";
 
-static grmcdorman::WebServer webServer(80);         //!< The settings web server.
+static grmcdorman::WebSettings web_settings;    //!< The settings web server. Default port (80).
 
 // Misc variables
 static bool factory_reset_next_loop = false;    //!< Set to true when a factory reset has been requested.
@@ -158,19 +157,19 @@ void setup()
     wifi_setup();
 
     // Add our one tab to the web server.
-    webServer.add_setting_set(F("WiFi"), settings);
+    web_settings.add_setting_set(F("WiFi"), settings);
 
     // Add an extra handler.
-    webServer.get_server().on("/heap", HTTP_GET, [](AsyncWebServerRequest *request){
+    web_settings.get_server().on("/heap", HTTP_GET, [](AsyncWebServerRequest *request){
         request->send(200, "text/plain", String(ESP.getFreeHeap()));
     });
 
     // Set up the web server and page.
-    webServer.setup(on_save, on_restart, on_factory_reset);
+    web_settings.setup(on_save, on_restart, on_factory_reset);
     // If we are connected to an AP, set credentials.
     if (WiFi.status() == WL_CONNECTED)
     {
-        webServer.set_credentials("admin", "password");
+        web_settings.set_credentials("admin", "password");
     }
 
     Serial.print(F("IP: "));
@@ -187,7 +186,7 @@ void loop()
     }
 
     // Not presently essential; might be needed in future.
-    webServer.loop();
+    web_settings.loop();
 
     if (factory_reset_next_loop && millis() - restart_reset_when > restart_reset_delay)
     {
@@ -332,19 +331,19 @@ static std::optional<DynamicJsonDocument> LoadConfig()
 }
 
 
-static void on_factory_reset(::grmcdorman::WebServer &)
+static void on_factory_reset(::grmcdorman::WebSettings &)
 {
     factory_reset_next_loop = true;
     restart_reset_when = millis();
 }
 
-static void on_restart(::grmcdorman::WebServer &)
+static void on_restart(::grmcdorman::WebSettings &)
 {
     restart_next_loop =-true;
     restart_reset_when = millis();
 }
 
-static void on_save(::grmcdorman::WebServer &)
+static void on_save(::grmcdorman::WebSettings &)
 {
     Serial.println("Saving settings");
     DynamicJsonDocument json(4096);

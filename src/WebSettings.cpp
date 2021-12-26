@@ -1,5 +1,5 @@
 
-#include "grmcdorman/WebServer.h"
+#include "grmcdorman/WebSettings.h"
 
 #include <AsyncJson.h>
 #include <LittleFS.h>
@@ -321,12 +321,12 @@ namespace grmcdorman
             "}";
     }
 
-    WebServer::WebServer(uint16_t port): server(port)
+    WebSettings::WebSettings(uint16_t port): server(port)
     {
         generate_new_authentication();
     }
 
-    void WebServer::setup(const notify_t &on_save_f, const notify_t &on_restart_f, const notify_t &on_factory_reset_f)
+    void WebSettings::setup(const notify_t &on_save_f, const notify_t &on_restart_f, const notify_t &on_factory_reset_f)
     {
         on_save = on_save_f;
         on_restart = on_restart_f;
@@ -477,7 +477,7 @@ namespace grmcdorman
         size += N - 1;
     }
 
-    bool WebServer::on_main_page_tabbutton_chunk(uint8_t *buffer, size_t maxLen, size_t &size, MainPageChunkContext &context)
+    bool WebSettings::on_main_page_tabbutton_chunk(uint8_t *buffer, size_t maxLen, size_t &size, MainPageChunkContext &context)
     {
         static const char button_start[] PROGMEM = "<button class=\"tablinks";
         static const char active[] PROGMEM = " active";
@@ -529,7 +529,7 @@ namespace grmcdorman
         return true;    // All done.
     }
 
-    bool WebServer::on_main_page_tabbody_chunk(uint8_t *buffer, size_t maxLen, size_t &size, MainPageChunkContext &context)
+    bool WebSettings::on_main_page_tabbody_chunk(uint8_t *buffer, size_t maxLen, size_t &size, MainPageChunkContext &context)
     {
         while (context.current_panel != setting_panels.end())
         {
@@ -625,7 +625,7 @@ namespace grmcdorman
         return true;
     }
 
-    bool WebServer::on_main_page_footer_chunk(uint8_t *buffer, size_t maxLen, size_t &size, MainPageChunkContext &context)
+    bool WebSettings::on_main_page_footer_chunk(uint8_t *buffer, size_t maxLen, size_t &size, MainPageChunkContext &context)
     {
         static const char footer_start[] PROGMEM =
                     "<input class=\"md_button ripple\" type=\"submit\" value=\"Save\">"
@@ -696,7 +696,7 @@ namespace grmcdorman
         return true;
     }
 
-    size_t WebServer::on_main_page_chunk(uint8_t *buffer, size_t maxLen, size_t , MainPageChunkContext *context_ptr)
+    size_t WebSettings::on_main_page_chunk(uint8_t *buffer, size_t maxLen, size_t , MainPageChunkContext *context_ptr)
     {
         auto & context = *context_ptr;
         size_t size(0);
@@ -766,17 +766,17 @@ namespace grmcdorman
         return size;
     }
 
-    void WebServer::add_setting_set(const __FlashStringHelper *name, const SettingInterface::settings_list_t &list)
+    void WebSettings::add_setting_set(const __FlashStringHelper *name, const SettingInterface::settings_list_t &list)
     {
         setting_panels.emplace_back(std::make_unique<SettingPanel>(name, list));
     }
 
-    void WebServer::loop()
+    void WebSettings::loop()
     {
         // Asynchronous, nothing to see here. This is not the loop you are looking for.
     }
 
-    void WebServer::on_request_upload(AsyncWebServerRequest *request)
+    void WebSettings::on_request_upload(AsyncWebServerRequest *request)
     {
         //!< @TODO This should have better styling.
         request->send(200, TEXT_HTML, F("<!DOCTYPE html>"
@@ -790,7 +790,7 @@ namespace grmcdorman
             "</form>"));
     }
 
-    void WebServer::handle_upload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final)
+    void WebSettings::handle_upload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final)
     {
         // Shamelessly adapted from tzapu/WiFiManager for Async web server
 
@@ -848,7 +848,7 @@ namespace grmcdorman
         delay(0);
     }
 
-    void WebServer::on_update_failed(AsyncWebServerRequest *request)
+    void WebSettings::on_update_failed(AsyncWebServerRequest *request)
     {
         String page = F("<!DOCTYPE html><html>"
             "<link rel=\"stylesheet\" href=\"/style.css\">"
@@ -868,7 +868,7 @@ namespace grmcdorman
         request->send(500, TEXT_HTML, page);
     }
 
-    void WebServer::on_update_done(AsyncWebServerRequest *request)
+    void WebSettings::on_update_done(AsyncWebServerRequest *request)
     {
         if (Update.hasError())
         {
@@ -891,7 +891,7 @@ namespace grmcdorman
         on_restart(*this);
     }
 
-    void WebServer::on_request_values(AsyncWebServerRequest *request)
+    void WebSettings::on_request_values(AsyncWebServerRequest *request)
     {
         if (!request->hasArg("tab"))
         {
@@ -914,7 +914,7 @@ namespace grmcdorman
         request->send(response);
     }
 
-    void WebServer::on_not_found(AsyncWebServerRequest *request)
+    void WebSettings::on_not_found(AsyncWebServerRequest *request)
     {
         // In soft AP mode redirect to the root document.
         if (WiFi.softAPgetStationNum() != 0)
@@ -932,7 +932,7 @@ namespace grmcdorman
         }
     }
 
-    void WebServer::generate_new_authentication()
+    void WebSettings::generate_new_authentication()
     {
         // Authentication realm may exclude some characters,
         // for simplicity generate using the following set.
@@ -950,7 +950,7 @@ namespace grmcdorman
         }
     }
 
-    bool WebServer::verify_authentication(AsyncWebServerRequest *request)
+    bool WebSettings::verify_authentication(AsyncWebServerRequest *request)
     {
         if (!auth_user.isEmpty())
         {
