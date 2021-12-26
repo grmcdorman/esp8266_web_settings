@@ -65,7 +65,7 @@ jobs:
             - name: LoRa
           sketch-paths: |
             # Compile these sketches for all boards
-            - examples/InfoAndWifi
+            - examples/SimpleWifiConfig
             ${{ matrix.sketch-paths }}
           enable-deltas-report: true
           sketches-report-path: ${{ env.SKETCHES_REPORTS_PATH }}
