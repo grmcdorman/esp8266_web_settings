@@ -73,7 +73,7 @@ namespace grmcdorman
          *
          * @param port The server port; default is 80.
          */
-        WebServer(uint16_t port = 80);
+        explicit WebServer(uint16_t port = 80);
         /**
          * @brief Set up the web server.
          *
