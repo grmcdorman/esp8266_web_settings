@@ -47,7 +47,7 @@ jobs:
             - source-path: ./
             - name: ArduinoJson
             - source-url: https://github.com/me-no-dev/ESPAsyncWebServer.git
-            - source-url: https://github.com/me-no-dev/ESPAsyncTCP
+            - source-url: https://github.com/me-no-dev/ESPAsyncTCP.git
           sketch-paths: |
             # Compile these sketches for all boards
             - examples
