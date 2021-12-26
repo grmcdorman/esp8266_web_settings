@@ -63,7 +63,7 @@ jobs:
             # Install the library from the local path.
             - source-path: ./
             - name: ArduinoJson
-            - name: ESPAsyncWebServer
+            - name: ESP Async WebServer
           sketch-paths: |
             # Compile these sketches for all boards
             - examples
