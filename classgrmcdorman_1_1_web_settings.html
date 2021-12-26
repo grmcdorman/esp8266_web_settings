@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.2"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>esp8266_web_settings: grmcdorman::WebServer Class Reference</title>
+<title>esp8266_web_settings: grmcdorman::WebSettings Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -62,7 +62,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><b>grmcdorman</b></li><li class="navelem"><a class="el" href="classgrmcdorman_1_1_web_server.html">WebServer</a></li>  </ul>
+<li class="navelem"><b>grmcdorman</b></li><li class="navelem"><a class="el" href="classgrmcdorman_1_1_web_settings.html">WebSettings</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -70,62 +70,70 @@ $(function() {
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="classgrmcdorman_1_1_web_server-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">grmcdorman::WebServer Class Reference</div></div>
+<a href="classgrmcdorman_1_1_web_settings-members.html">List of all members</a>  </div>
+  <div class="headertitle"><div class="title">grmcdorman::WebSettings Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>The <a class="el" href="classgrmcdorman_1_1_web_server.html" title="The WebServer class.">WebServer</a> class.  
- <a href="classgrmcdorman_1_1_web_server.html#details">More...</a></p>
+<p>The <a class="el" href="classgrmcdorman_1_1_web_settings.html" title="The WebSettings class.">WebSettings</a> class.  
+ <a href="classgrmcdorman_1_1_web_settings.html#details">More...</a></p>
 
-<p><code>#include &lt;<a class="el" href="_web_server_8h_source.html">grmcdorman/WebServer.h</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="_web_settings_8h_source.html">/github/workspace/src/grmcdorman/WebSettings.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:a10171313dc38d9311c1e6514ebfe267d"><td class="memItemLeft" align="right" valign="top"><a id="a10171313dc38d9311c1e6514ebfe267d" name="a10171313dc38d9311c1e6514ebfe267d"></a>
-typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><b>notify_t</b>) (<a class="el" href="classgrmcdorman_1_1_web_server.html">WebServer</a> &amp;)</td></tr>
-<tr class="memdesc:a10171313dc38d9311c1e6514ebfe267d"><td class="mdescLeft">&#160;</td><td class="mdescRight">The callback definition. <br /></td></tr>
-<tr class="separator:a10171313dc38d9311c1e6514ebfe267d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af46f7627b2d1c993c654fff72810efeb"><td class="memItemLeft" align="right" valign="top"><a id="af46f7627b2d1c993c654fff72810efeb" name="af46f7627b2d1c993c654fff72810efeb"></a>
+typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><b>notify_t</b>) (<a class="el" href="classgrmcdorman_1_1_web_settings.html">WebSettings</a> &amp;)</td></tr>
+<tr class="memdesc:af46f7627b2d1c993c654fff72810efeb"><td class="mdescLeft">&#160;</td><td class="mdescRight">The callback definition. <br /></td></tr>
+<tr class="separator:af46f7627b2d1c993c654fff72810efeb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a729d3b733a0616b610abe119620646f1"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgrmcdorman_1_1_web_server.html#a729d3b733a0616b610abe119620646f1">WebServer</a> (uint16_t port=80)</td></tr>
-<tr class="memdesc:a729d3b733a0616b610abe119620646f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a new Web Server object.  <a href="classgrmcdorman_1_1_web_server.html#a729d3b733a0616b610abe119620646f1">More...</a><br /></td></tr>
-<tr class="separator:a729d3b733a0616b610abe119620646f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3115de43e2e4f37c7a6c615f8483cbb6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgrmcdorman_1_1_web_server.html#a3115de43e2e4f37c7a6c615f8483cbb6">setup</a> (const <a class="el" href="classgrmcdorman_1_1_web_server.html#a10171313dc38d9311c1e6514ebfe267d">notify_t</a> &amp;on_save, const <a class="el" href="classgrmcdorman_1_1_web_server.html#a10171313dc38d9311c1e6514ebfe267d">notify_t</a> &amp;on_restart, const <a class="el" href="classgrmcdorman_1_1_web_server.html#a10171313dc38d9311c1e6514ebfe267d">notify_t</a> &amp;on_factory_reset)</td></tr>
-<tr class="memdesc:a3115de43e2e4f37c7a6c615f8483cbb6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set up the web server.  <a href="classgrmcdorman_1_1_web_server.html#a3115de43e2e4f37c7a6c615f8483cbb6">More...</a><br /></td></tr>
-<tr class="separator:a3115de43e2e4f37c7a6c615f8483cbb6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac64b113c4b264252f88aee9e40214ac9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgrmcdorman_1_1_web_server.html#ac64b113c4b264252f88aee9e40214ac9">loop</a> ()</td></tr>
-<tr class="memdesc:ac64b113c4b264252f88aee9e40214ac9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loop handling.  <a href="classgrmcdorman_1_1_web_server.html#ac64b113c4b264252f88aee9e40214ac9">More...</a><br /></td></tr>
-<tr class="separator:ac64b113c4b264252f88aee9e40214ac9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a689f84cbbc7acc1b4acffbf7398b748f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgrmcdorman_1_1_web_server.html#a689f84cbbc7acc1b4acffbf7398b748f">add_setting_set</a> (const __FlashStringHelper *name, const <a class="el" href="classgrmcdorman_1_1_setting_interface.html#af0b5441bd5c028ceaee2e1edf96249cd">SettingInterface::settings_list_t</a> &amp;setting_set)</td></tr>
-<tr class="memdesc:a689f84cbbc7acc1b4acffbf7398b748f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a setting set.  <a href="classgrmcdorman_1_1_web_server.html#a689f84cbbc7acc1b4acffbf7398b748f">More...</a><br /></td></tr>
-<tr class="separator:a689f84cbbc7acc1b4acffbf7398b748f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae04c5001b9abe222438b33e00d624cb5"><td class="memItemLeft" align="right" valign="top">AsyncWebServer &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgrmcdorman_1_1_web_server.html#ae04c5001b9abe222438b33e00d624cb5">get_server</a> ()</td></tr>
-<tr class="memdesc:ae04c5001b9abe222438b33e00d624cb5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the server.  <a href="classgrmcdorman_1_1_web_server.html#ae04c5001b9abe222438b33e00d624cb5">More...</a><br /></td></tr>
-<tr class="separator:ae04c5001b9abe222438b33e00d624cb5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3204df43ed82ee47a3396a2e2d48aaaa"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgrmcdorman_1_1_web_server.html#a3204df43ed82ee47a3396a2e2d48aaaa">set_credentials</a> (const String &amp;user, const String &amp;password)</td></tr>
-<tr class="memdesc:a3204df43ed82ee47a3396a2e2d48aaaa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the credentials for modifying operations.  <a href="classgrmcdorman_1_1_web_server.html#a3204df43ed82ee47a3396a2e2d48aaaa">More...</a><br /></td></tr>
-<tr class="separator:a3204df43ed82ee47a3396a2e2d48aaaa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4bc4838532de2555f6885bd4feef2687"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgrmcdorman_1_1_web_settings.html#a4bc4838532de2555f6885bd4feef2687">WebSettings</a> (uint16_t port=80)</td></tr>
+<tr class="memdesc:a4bc4838532de2555f6885bd4feef2687"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a new Web Server object.  <a href="classgrmcdorman_1_1_web_settings.html#a4bc4838532de2555f6885bd4feef2687">More...</a><br /></td></tr>
+<tr class="separator:a4bc4838532de2555f6885bd4feef2687"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aefaefdc608881f3d7ca05bd8919aa90a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgrmcdorman_1_1_web_settings.html#aefaefdc608881f3d7ca05bd8919aa90a">setup</a> (const <a class="el" href="classgrmcdorman_1_1_web_settings.html#af46f7627b2d1c993c654fff72810efeb">notify_t</a> &amp;on_save, const <a class="el" href="classgrmcdorman_1_1_web_settings.html#af46f7627b2d1c993c654fff72810efeb">notify_t</a> &amp;on_restart, const <a class="el" href="classgrmcdorman_1_1_web_settings.html#af46f7627b2d1c993c654fff72810efeb">notify_t</a> &amp;on_factory_reset)</td></tr>
+<tr class="memdesc:aefaefdc608881f3d7ca05bd8919aa90a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set up the web server.  <a href="classgrmcdorman_1_1_web_settings.html#aefaefdc608881f3d7ca05bd8919aa90a">More...</a><br /></td></tr>
+<tr class="separator:aefaefdc608881f3d7ca05bd8919aa90a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa51b42d06e58e625e5522a6677399456"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgrmcdorman_1_1_web_settings.html#aa51b42d06e58e625e5522a6677399456">loop</a> ()</td></tr>
+<tr class="memdesc:aa51b42d06e58e625e5522a6677399456"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loop handling.  <a href="classgrmcdorman_1_1_web_settings.html#aa51b42d06e58e625e5522a6677399456">More...</a><br /></td></tr>
+<tr class="separator:aa51b42d06e58e625e5522a6677399456"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a257d7a38531936aa07ff2648e4eb7c7a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgrmcdorman_1_1_web_settings.html#a257d7a38531936aa07ff2648e4eb7c7a">add_setting_set</a> (const __FlashStringHelper *name, const <a class="el" href="classgrmcdorman_1_1_setting_interface.html#af0b5441bd5c028ceaee2e1edf96249cd">SettingInterface::settings_list_t</a> &amp;setting_set)</td></tr>
+<tr class="memdesc:a257d7a38531936aa07ff2648e4eb7c7a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a setting set.  <a href="classgrmcdorman_1_1_web_settings.html#a257d7a38531936aa07ff2648e4eb7c7a">More...</a><br /></td></tr>
+<tr class="separator:a257d7a38531936aa07ff2648e4eb7c7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aca5cdf5e43d11030c219733f51831c7a"><td class="memItemLeft" align="right" valign="top">AsyncWebServer &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgrmcdorman_1_1_web_settings.html#aca5cdf5e43d11030c219733f51831c7a">get_server</a> ()</td></tr>
+<tr class="memdesc:aca5cdf5e43d11030c219733f51831c7a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the server.  <a href="classgrmcdorman_1_1_web_settings.html#aca5cdf5e43d11030c219733f51831c7a">More...</a><br /></td></tr>
+<tr class="separator:aca5cdf5e43d11030c219733f51831c7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4984cece43adaa9d5bb9704952304d6e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgrmcdorman_1_1_web_settings.html#a4984cece43adaa9d5bb9704952304d6e">set_credentials</a> (const String &amp;user, const String &amp;password)</td></tr>
+<tr class="memdesc:a4984cece43adaa9d5bb9704952304d6e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the credentials for modifying operations.  <a href="classgrmcdorman_1_1_web_settings.html#a4984cece43adaa9d5bb9704952304d6e">More...</a><br /></td></tr>
+<tr class="separator:a4984cece43adaa9d5bb9704952304d6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p >The <a class="el" href="classgrmcdorman_1_1_web_server.html" title="The WebServer class.">WebServer</a> class. </p>
+<div class="textblock"><p >The <a class="el" href="classgrmcdorman_1_1_web_settings.html" title="The WebSettings class.">WebSettings</a> class. </p>
 <p >This is the primary class for the library; it handles the web pages and manages the sets of settings. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a729d3b733a0616b610abe119620646f1" name="a729d3b733a0616b610abe119620646f1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a729d3b733a0616b610abe119620646f1">&#9670;&nbsp;</a></span>WebServer()</h2>
+<a id="a4bc4838532de2555f6885bd4feef2687" name="a4bc4838532de2555f6885bd4feef2687"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4bc4838532de2555f6885bd4feef2687">&#9670;&nbsp;</a></span>WebSettings()</h2>
 
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">grmcdorman::WebServer::WebServer </td>
+          <td class="memname">grmcdorman::WebSettings::WebSettings </td>
           <td>(</td>
           <td class="paramtype">uint16_t&#160;</td>
           <td class="paramname"><em>port</em> = <code>80</code></td><td>)</td>
           <td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">explicit</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
 <p>Construct a new Web Server object. </p>
@@ -139,14 +147,14 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a689f84cbbc7acc1b4acffbf7398b748f" name="a689f84cbbc7acc1b4acffbf7398b748f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a689f84cbbc7acc1b4acffbf7398b748f">&#9670;&nbsp;</a></span>add_setting_set()</h2>
+<a id="a257d7a38531936aa07ff2648e4eb7c7a" name="a257d7a38531936aa07ff2648e4eb7c7a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a257d7a38531936aa07ff2648e4eb7c7a">&#9670;&nbsp;</a></span>add_setting_set()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void grmcdorman::WebServer::add_setting_set </td>
+          <td class="memname">void grmcdorman::WebSettings::add_setting_set </td>
           <td>(</td>
           <td class="paramtype">const __FlashStringHelper *&#160;</td>
           <td class="paramname"><em>name</em>, </td>
@@ -178,8 +186,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="ae04c5001b9abe222438b33e00d624cb5" name="ae04c5001b9abe222438b33e00d624cb5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae04c5001b9abe222438b33e00d624cb5">&#9670;&nbsp;</a></span>get_server()</h2>
+<a id="aca5cdf5e43d11030c219733f51831c7a" name="aca5cdf5e43d11030c219733f51831c7a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aca5cdf5e43d11030c219733f51831c7a">&#9670;&nbsp;</a></span>get_server()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -188,7 +196,7 @@ Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">AsyncWebServer &amp; grmcdorman::WebServer::get_server </td>
+          <td class="memname">AsyncWebServer &amp; grmcdorman::WebSettings::get_server </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -207,14 +215,14 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="ac64b113c4b264252f88aee9e40214ac9" name="ac64b113c4b264252f88aee9e40214ac9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac64b113c4b264252f88aee9e40214ac9">&#9670;&nbsp;</a></span>loop()</h2>
+<a id="aa51b42d06e58e625e5522a6677399456" name="aa51b42d06e58e625e5522a6677399456"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa51b42d06e58e625e5522a6677399456">&#9670;&nbsp;</a></span>loop()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void grmcdorman::WebServer::loop </td>
+          <td class="memname">void grmcdorman::WebSettings::loop </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -227,8 +235,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a3204df43ed82ee47a3396a2e2d48aaaa" name="a3204df43ed82ee47a3396a2e2d48aaaa"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3204df43ed82ee47a3396a2e2d48aaaa">&#9670;&nbsp;</a></span>set_credentials()</h2>
+<a id="a4984cece43adaa9d5bb9704952304d6e" name="a4984cece43adaa9d5bb9704952304d6e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4984cece43adaa9d5bb9704952304d6e">&#9670;&nbsp;</a></span>set_credentials()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -237,7 +245,7 @@ Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void grmcdorman::WebServer::set_credentials </td>
+          <td class="memname">void grmcdorman::WebSettings::set_credentials </td>
           <td>(</td>
           <td class="paramtype">const String &amp;&#160;</td>
           <td class="paramname"><em>user</em>, </td>
@@ -274,28 +282,28 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a3115de43e2e4f37c7a6c615f8483cbb6" name="a3115de43e2e4f37c7a6c615f8483cbb6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3115de43e2e4f37c7a6c615f8483cbb6">&#9670;&nbsp;</a></span>setup()</h2>
+<a id="aefaefdc608881f3d7ca05bd8919aa90a" name="aefaefdc608881f3d7ca05bd8919aa90a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aefaefdc608881f3d7ca05bd8919aa90a">&#9670;&nbsp;</a></span>setup()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void grmcdorman::WebServer::setup </td>
+          <td class="memname">void grmcdorman::WebSettings::setup </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="classgrmcdorman_1_1_web_server.html#a10171313dc38d9311c1e6514ebfe267d">notify_t</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classgrmcdorman_1_1_web_settings.html#af46f7627b2d1c993c654fff72810efeb">notify_t</a> &amp;&#160;</td>
           <td class="paramname"><em>on_save</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="classgrmcdorman_1_1_web_server.html#a10171313dc38d9311c1e6514ebfe267d">notify_t</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classgrmcdorman_1_1_web_settings.html#af46f7627b2d1c993c654fff72810efeb">notify_t</a> &amp;&#160;</td>
           <td class="paramname"><em>on_restart</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="classgrmcdorman_1_1_web_server.html#a10171313dc38d9311c1e6514ebfe267d">notify_t</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classgrmcdorman_1_1_web_settings.html#af46f7627b2d1c993c654fff72810efeb">notify_t</a> &amp;&#160;</td>
           <td class="paramname"><em>on_factory_reset</em>&#160;</td>
         </tr>
         <tr>
@@ -319,8 +327,8 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>grmcdorman/<a class="el" href="_web_server_8h_source.html">WebServer.h</a></li>
-<li>WebServer.cpp</li>
+<li>grmcdorman/<a class="el" href="_web_settings_8h_source.html">WebSettings.h</a></li>
+<li>WebSettings.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

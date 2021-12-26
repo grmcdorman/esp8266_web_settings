@@ -10,7 +10,7 @@ var searchData=
   ['get_5fmake_5finput_7',['get_make_input',['../classgrmcdorman_1_1_setting_interface.html#a2962f7eefb97772dff774796331ecd10',1,'grmcdorman::SettingInterface']]],
   ['get_5fname_8',['get_name',['../classgrmcdorman_1_1_setting_panel.html#a12812ab83b5cc459999950d98e18465c',1,'grmcdorman::SettingPanel']]],
   ['get_5fname_5flength_9',['get_name_length',['../classgrmcdorman_1_1_setting_panel.html#a18777f98f358641c31b16f965951c901',1,'grmcdorman::SettingPanel']]],
-  ['get_5fserver_10',['get_server',['../classgrmcdorman_1_1_web_server.html#ae04c5001b9abe222438b33e00d624cb5',1,'grmcdorman::WebServer']]],
+  ['get_5fserver_10',['get_server',['../classgrmcdorman_1_1_web_settings.html#aca5cdf5e43d11030c219733f51831c7a',1,'grmcdorman::WebSettings']]],
   ['get_5fsettings_11',['get_settings',['../classgrmcdorman_1_1_setting_panel.html#a7cb67a401e69f281b320a71c1af2541c',1,'grmcdorman::SettingPanel']]],
   ['get_5funique_5fid_12',['get_unique_id',['../classgrmcdorman_1_1_setting_interface.html#aec6323ab82c94a59da77eec1a52faff3',1,'grmcdorman::SettingInterface']]]
 ];
