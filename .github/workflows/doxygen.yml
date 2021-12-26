@@ -3,12 +3,12 @@
 name: Doxygen Action
 
 # Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the master branch
+# events but only for the main branch
 on:
   push:
-    branches: [ master, beta ]
+    branches: [ main ]
   pull_request:
-    branches: [ master, beta ]
+    branches: [ main ]
 
 
 
@@ -34,7 +34,6 @@ jobs:
 
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
-      if: ${{ github.ref == 'refs/heads/main' }}
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./html

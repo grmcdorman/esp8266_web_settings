@@ -4,7 +4,10 @@
 #include <LittleFS.h>
 #include <WString.h>
 
-#include <grmcdorman/WebSettings.h>
+// This just includes "grmcdorman/WebSettings.h", but including the latter doesn't work;
+// not clear why. This is not a terribly good choice here, there is no protection against
+// some other <esp8266_web_settings.h> file.
+#include <esp8266_web_settings.h>
 
 // Forward declarations
 static void wifi_setup();

@@ -2,5 +2,5 @@
 // The author's recommendation is that you ignore this file and include the file(s) of interest
 // such as <grmcdorman/WebSettings.h>.
 
-// Include the main file. This does not include other classes.
-#include <grmcdorman/WebSettings.h>
+// Include the main file.
+#include "grmcdorman/WebSettings.h"
