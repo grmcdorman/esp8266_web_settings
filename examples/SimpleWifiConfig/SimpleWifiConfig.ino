@@ -4,7 +4,7 @@
 #include <LittleFS.h>
 #include <WString.h>
 
-#include <grmcdorman/WebSettings.h>
+#include <esp8266_web_settings.h>
 
 // Forward declarations
 static void wifi_setup();

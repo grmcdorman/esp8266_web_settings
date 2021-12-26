@@ -43,10 +43,8 @@ jobs:
             - name: "esp8266:esp8266"
               source-url: "http://arduino.esp8266.com/stable/package_esp8266com_index.json"
           libraries: |
-            # Install the library from the local path. Needs to go into
-            # the example directory, otherwise the build has issues finding files.
-            - source-path: ./src
-              destination-name: ./examples/SimpleWifiConfig
+            # Install the library from the local path.
+            - source-path: ./
             - name: ArduinoJson
             - source-url: https://github.com/me-no-dev/ESPAsyncWebServer.git
           sketch-paths: |
