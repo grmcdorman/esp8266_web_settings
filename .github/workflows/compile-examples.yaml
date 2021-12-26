@@ -30,25 +30,6 @@ jobs:
     strategy:
       fail-fast: false
 
-      matrix:
-        board:
-          - fqbn: arduino:samd:mkrwan1300
-            platforms: |
-              - name: arduino:samd
-            updater: true
-          - fqbn: arduino:samd:mkrwan1310
-            platforms: |
-              - name: arduino:samd
-            updater: true
-          - fqbn: arduino:mbed_portenta:envie_m4
-            platforms: |
-              - name: arduino:mbed_portenta
-            updater: false
-          - fqbn: arduino:mbed_portenta:envie_m7
-            platforms: |
-              - name: arduino:mbed_portenta
-            updater: true
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -57,8 +38,10 @@ jobs:
         uses: arduino/compile-sketches@v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          fqbn: ${{ matrix.board.fqbn }}
-          platforms: ${{ matrix.board.platforms }}
+          fqbn: "esp8266:esp8266:Generic ESP8266 Module"
+          platforms: |
+            - name: "esp8266:esp8266"
+              source-url: "http://arduino.esp8266.com/stable/package_esp8266com_index.json"
           libraries: |
             # Install the library from the local path.
             - source-path: ./
@@ -67,7 +50,6 @@ jobs:
           sketch-paths: |
             # Compile these sketches for all boards
             - examples
-            ${{ matrix.sketch-paths }}
           enable-deltas-report: true
           sketches-report-path: ${{ env.SKETCHES_REPORTS_PATH }}
 
