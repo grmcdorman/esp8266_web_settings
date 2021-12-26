@@ -62,10 +62,11 @@ jobs:
           libraries: |
             # Install the library from the local path.
             - source-path: ./
-            - name: LoRa
+            - name: ArduinoJson
+            - name: ESPAsyncWebServer
           sketch-paths: |
             # Compile these sketches for all boards
-            - examples/SimpleWifiConfig.ino
+            - examples
             ${{ matrix.sketch-paths }}
           enable-deltas-report: true
           sketches-report-path: ${{ env.SKETCHES_REPORTS_PATH }}
