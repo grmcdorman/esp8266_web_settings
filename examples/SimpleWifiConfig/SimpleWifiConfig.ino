@@ -1,5 +1,4 @@
 #include <ArduinoJson.h>
-#include <ArduinoOTA.h>
 #include <DNSServer.h>
 #include <ESP8266WiFi.h>
 #include <LittleFS.h>

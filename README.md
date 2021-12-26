@@ -16,7 +16,7 @@ Settings on each tab are displayed in a two-column table.
 
 <h1>Usage</h1>
 
-The main class is [`WebServer`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_web_server.html). Create a single instance of this class, and then call its `add_setting_set` with lists of settings to create each panel in the web page.
+The main class is [`WebSettings`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_web_settings.html). Create a single instance of this class, and then call its `add_setting_set` with lists of settings to create each panel in the web page.
 
 There are several settings classes:
 
@@ -30,9 +30,9 @@ There are several settings classes:
 * [`ToggleSetting`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_toggle_setting.html). A setting containing a boolean; presented as a checkbox.
 * [`InfoSettingHtml`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_info_setting_html.html). A "setting" that displays information that can be updated every 5 seconds. It can contain arbitrary HTML.
 
-Public methods in the [`WebServer`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_web_server_html.html) class:
+Public methods in the [`WebSettings`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_web_server_html.html) class:
 
-* `WebServer(uint16_t port = 80)`: Construct a new Web server; optionally specify the port.
+* `WebSettings(uint16_t port = 80)`: Construct a new Web server; optionally specify the port.
 * `void setup(const notify_t &on_save, const notify_t &on_restart, const notify_t &on_factory_reset)`: Set up to handle requests.
 * `void add_setting_set(const __FlashStringHelper *name, const SettingInterface::settings_list_t &setting_set);`: Add a collection of settings; creates a setting tab.
 * `void set_credentials(const String &user, const String &password)`: Set credentials for save, reset, factory reset, and upload operations.
@@ -66,9 +66,9 @@ Basic example:
 #include <ESP8266WiFi.h>
 #include <LittleFS.h>
 
-#include "grmcdorman/WebServer.h"
+#include "grmcdorman/WebSettings.h"
 
-grmcdorman::WebServer webServer;
+grmcdorman::WebSettings web_setings;
 
 #define DECLARE_INFO_SETTING(name, text) \
 static const char * PROGMEM name##_text = text; \
@@ -107,19 +107,19 @@ static bool restart_next_loop = false;
 static uint32_t restart_reset_when = 0;
 static constexpr uint32_t restart_reset_delay = 500;
 
-static void on_factory_reset(::grmcdorman::WebServer &)
+static void on_factory_reset(::grmcdorman::WebSettings &)
 {
     factory_reset_next_loop = true;
     restart_reset_when = millis();
 }
 
-static void on_restart(::grmcdorman::WebServer &)
+static void on_restart(::grmcdorman::WebSettings &)
 {
     restart_next_loop =-true;
     restart_reset_when = millis();
 }
 
-static void on_save(::grmcdorman::WebServer &)
+static void on_save(::grmcdorman::WebSettings &)
 {
     // Save your settings to flash.
 }
@@ -127,7 +127,7 @@ static void on_save(::grmcdorman::WebServer &)
 void setup()
 {
 
-    webServer.add_setting_set(F("Overview"), info_item_list);
+    web_setings.add_setting_set(F("Overview"), info_item_list);
     // Callbacks for info page.
     static const char in_ap_mode[] PROGMEM = "(In Access Pont mode)";
     static const char in_sta_mode[] PROGMEM = "(In Station mode)";
@@ -178,17 +178,17 @@ void setup()
 
     // NOTE: SoftAP capture portal is not happy about authentication. You should not
     // make this call for SoftAP mode, or handle SoftAP differently.
-    webServer.set_credentials("admin", "my update password");
+    web_setings.set_credentials("admin", "my update password");
 
     // If `on_restart` is a `nullptr`, the Restart & Upload buttons are not shown.
     // If `on_factory_reset` is a `nullptr`, the Factory Reset button is not shown.
-    webServer.setup(on_save, on_restart, on_factory_reset);
+    web_setings.setup(on_save, on_restart, on_factory_reset);
 }
 
 
 void loop()
 {
-    webServer.loop();      // This presently doesn't do anything. It is for future use.
+    web_setings.loop();      // This presently doesn't do anything. It is for future use.
 
     if (factory_reset_next_loop && millis() - restart_reset_when > restart_reset_delay)
     {
