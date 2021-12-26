@@ -134,8 +134,6 @@ void setup()
         auto hours = now / 1000 / 60 /60;
         auto minutes = now / 1000 / 60  % 60;
         auto seconds = now / 1000 % 60;
-        static const char * PROGMEM sep_with_digit = ":0";
-        static const char * PROGMEM sep_only = ":";
         char message[strlen("00000:00:00")]; // This allows hours up to 99999, which is larger than 1200 hours.
         snprintf(message, sizeof (message) -1, "%d:%02d:%02d", hours, minutes, seconds);
         uptime.set(message);
