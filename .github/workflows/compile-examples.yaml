@@ -21,7 +21,7 @@ on:
 
 jobs:
   build:
-    name: ${{ matrix.board.fqbn }}
+    name: esp8266
     runs-on: ubuntu-latest
 
     env:
@@ -38,7 +38,7 @@ jobs:
         uses: arduino/compile-sketches@v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          fqbn: "esp8266:esp8266:Generic ESP8266 Module"
+          fqbn: esp8266:esp8266:generic
           platforms: |
             - name: "esp8266:esp8266"
               source-url: "http://arduino.esp8266.com/stable/package_esp8266com_index.json"
