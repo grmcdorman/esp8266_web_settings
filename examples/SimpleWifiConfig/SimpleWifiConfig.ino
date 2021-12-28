@@ -4,9 +4,6 @@
 #include <LittleFS.h>
 #include <WString.h>
 
-// This just includes "grmcdorman/WebSettings.h", but including the latter doesn't work;
-// not clear why. This is not a terribly good choice here, there is no protection against
-// some other <esp8266_web_settings.h> file.
 #include <esp8266_web_settings.h>
 
 // Forward declarations
@@ -23,7 +20,8 @@ static void on_save(::grmcdorman::WebSettings &);
 // The WiFi settings.
 
 // These macros allow declaration of the settings at the top level, outside of
-// blocks (the F() macro is not allowed by the compiler in this context).
+// blocks (the F() macro is not allowed by the compiler in this context). The
+// strings are in PROGMEM.
 #define DECLARE_SETTING(name, text, type) \
 static const char * PROGMEM name##_text = text; \
 static const char * PROGMEM name##_id = #name; \
@@ -35,8 +33,6 @@ static ::grmcdorman::type name(FPSTR(name##_text), FPSTR(name##_id));
 #define DECLARE_TOGGLE_SETTING(name, text) DECLARE_SETTING(name, text, ToggleSetting)
 #define DECLARE_UNSIGNED_SETTING(name, text) DECLARE_SETTING(name, text, UnsignedIntegerSetting)
 
-// Note that all strings here are *not* in PROGMEM. It's somewhat trickier to
-// do this at the file scope, as the F macro isn't accepted by the compiler.
 DECLARE_STRING_SETTING(hostname, "Hostname");
 DECLARE_STRING_SETTING(ssid, "Access point SSID");
 DECLARE_PASSWORD_SETTING(password, "Access point password");
@@ -45,10 +41,10 @@ DECLARE_STRING_SETTING(ip_address, "IP address");
 DECLARE_STRING_SETTING(subnet_mask, "Subnet mask");
 DECLARE_STRING_SETTING(default_gateway, "Default gateway");
 DECLARE_UNSIGNED_SETTING(connection_timeout, "Connection timeout (seconds)");
-DECLARE_INFO_SETTING(rssi, "Signal strength"
-    "<script>window.addEventListener(\"load\", () => { periodicUpdateList.push(\"WiFi&setting=rssi\"); });</script>");
+DECLARE_INFO_SETTING(rssi, "Signal strength");
 DECLARE_INFO_SETTING(uptime, "Uptime"
-    "<script>window.addEventListener(\"load\", () => { periodicUpdateList.push(\"WiFi&setting=uptime\"); });</script>");
+    // This bit sets the periodic update to include both signal strength and uptime.
+    "<script>periodicUpdateList.push(\"wifi_settings&setting=uptime&setting=rssi\");</script>");
 
 // The list of settings.
 static ::grmcdorman::SettingInterface::settings_list_t
@@ -160,7 +156,7 @@ void setup()
     wifi_setup();
 
     // Add our one tab to the web server.
-    web_settings.add_setting_set(F("WiFi"), settings);
+    web_settings.add_setting_set(F("WiFi"), F("wifi_settings"), settings);
 
     // Add an extra handler.
     web_settings.get_server().on("/heap", HTTP_GET, [](AsyncWebServerRequest *request){

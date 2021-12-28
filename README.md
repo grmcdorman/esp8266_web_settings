@@ -38,20 +38,17 @@ Public methods in the [`WebSettings`](https://grmcdorman.github.io/esp8266_web_s
 * `void set_credentials(const String &user, const String &password)`: Set credentials for save, reset, factory reset, and upload operations.
 * `AsyncWebServer &get_server()`: Get the internal web server.
 
-For the most part, use the `get()` and `set()` methods in the Settings classes to retrieve and set values. The [`InfoSetting`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_infosetting_html.html) contains an additional method, `set_request_callback()`; this callback is invoked just before the InfoSetting's value is sent to the web page for an update. Thus, by setting
-this callback, you can dynamically update data on the web page.
+For the most part, use the `get()` and `set()` methods in the Settings classes to retrieve and set values. The [`InfoSetting`](https://grmcdorman.github.io/esp8266_web_settings/classgrmcdorman_1_1_infosetting_html.html) contains an additional method, `set_request_callback()`; this callback is invoked just before the InfoSetting's value is sent to the web page for an update. Thus, by setting this callback, you can dynamically update data on the web page.
 
-For each settings set, or panel, some JavaScript must be provided to include the panel in the periodic update. This can be done for the entire panel,
-or for a single setting. However, do **not** update the entire panel if it includes input fields; doing so will result in the input fields being reset
-every 5 seconds.
+For each settings set, or panel, some JavaScript must be provided to include the panel in the periodic update. This can be done for the entire panel, or for a specific list of settings. However, do **not** update the entire panel if it includes input fields; doing so will result in the input fields being reset every 5 seconds.
 
 To include an entire panel in the periodic update, include a Note setting with the following text, replacing **panel name** with the actual panel name:
 
-`window.addEventListener(\"load\", () => { periodicUpdateList.push("panel name"); });`
+`periodicUpdateList.push("panel_identifier");`
 
-To include a single setting in the periodic update, include a Note setting with the following text, again replacing **panel name** and **setting name**:
+To limit the update to one or more specific settings in the periodic update, include a Note setting with the following text, again replacing **panel_identifier** and the setting IDs:
 
-`window.addEventListener(\"load\", () => { periodicUpdateList.push("panel name&setting=setting name"); });`
+`periodicUpdateList.push("panel_identifier&setting=setting_1_id&setting=setting_2_id");`
 
 The `SettingPanel` class is intended for internal use.
 
@@ -78,7 +75,7 @@ static ::grmcdorman::InfoSettingHtml name(FPSTR(name##_text), FPSTR(name##_id));
 static const char * PROGMEM info_title_text = "<h1>" FIRMWARE_PREFIX "</h1>"
     "<h2>System information</h2>";
 static const char * PROGMEM info_footer_text =
-    "<script>window.addEventListener(\"load\", () => { periodicUpdateList.push(\"Overview\"); });</script>";
+    "<script>periodicUpdateList.push(\"overview_tab\");</script>";
 
 static ::grmcdorman::NoteSetting info_title(FPSTR(info_title_text));
 // Applicable when connected to AP.
@@ -127,7 +124,7 @@ static void on_save(::grmcdorman::WebSettings &)
 void setup()
 {
 
-    web_setings.add_setting_set(F("Overview"), info_item_list);
+    web_setings.add_setting_set(F("Overview"), F("overview_tab") info_item_list);
     // Callbacks for info page.
     static const char in_ap_mode[] PROGMEM = "(In Access Pont mode)";
     static const char in_sta_mode[] PROGMEM = "(In Station mode)";
