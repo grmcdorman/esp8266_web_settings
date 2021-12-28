@@ -34,7 +34,7 @@ Public methods in the [`WebSettings`](https://grmcdorman.github.io/esp8266_web_s
 
 * `WebSettings(uint16_t port = 80)`: Construct a new Web server; optionally specify the port.
 * `void setup(const notify_t &on_save, const notify_t &on_restart, const notify_t &on_factory_reset)`: Set up to handle requests.
-* `void add_setting_set(const __FlashStringHelper *name, const SettingInterface::settings_list_t &setting_set);`: Add a collection of settings; creates a setting tab.
+* `void add_setting_set(const __FlashStringHelper *name, const __FlashStringHelper *identifier, const SettingInterface::settings_list_t &setting_set);`: Add a collection of settings; creates a setting tab.
 * `void set_credentials(const String &user, const String &password)`: Set credentials for save, reset, factory reset, and upload operations.
 * `AsyncWebServer &get_server()`: Get the internal web server.
 
