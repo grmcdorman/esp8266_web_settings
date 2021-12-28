@@ -101,6 +101,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a257d7a38531936aa07ff2648e4eb7c7a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgrmcdorman_1_1_web_settings.html#a257d7a38531936aa07ff2648e4eb7c7a">add_setting_set</a> (const __FlashStringHelper *name, const <a class="el" href="classgrmcdorman_1_1_setting_interface.html#af0b5441bd5c028ceaee2e1edf96249cd">SettingInterface::settings_list_t</a> &amp;setting_set)</td></tr>
 <tr class="memdesc:a257d7a38531936aa07ff2648e4eb7c7a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a setting set.  <a href="classgrmcdorman_1_1_web_settings.html#a257d7a38531936aa07ff2648e4eb7c7a">More...</a><br /></td></tr>
 <tr class="separator:a257d7a38531936aa07ff2648e4eb7c7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1f894dfdc36ca38bf825ed83c0321a55"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgrmcdorman_1_1_web_settings.html#a1f894dfdc36ca38bf825ed83c0321a55">add_setting_set</a> (const __FlashStringHelper *name, const __FlashStringHelper *identifier, const <a class="el" href="classgrmcdorman_1_1_setting_interface.html#af0b5441bd5c028ceaee2e1edf96249cd">SettingInterface::settings_list_t</a> &amp;setting_set)</td></tr>
+<tr class="memdesc:a1f894dfdc36ca38bf825ed83c0321a55"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a setting set.  <a href="classgrmcdorman_1_1_web_settings.html#a1f894dfdc36ca38bf825ed83c0321a55">More...</a><br /></td></tr>
+<tr class="separator:a1f894dfdc36ca38bf825ed83c0321a55"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aca5cdf5e43d11030c219733f51831c7a"><td class="memItemLeft" align="right" valign="top">AsyncWebServer &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgrmcdorman_1_1_web_settings.html#aca5cdf5e43d11030c219733f51831c7a">get_server</a> ()</td></tr>
 <tr class="memdesc:aca5cdf5e43d11030c219733f51831c7a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the server.  <a href="classgrmcdorman_1_1_web_settings.html#aca5cdf5e43d11030c219733f51831c7a">More...</a><br /></td></tr>
 <tr class="separator:aca5cdf5e43d11030c219733f51831c7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -147,8 +150,8 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a257d7a38531936aa07ff2648e4eb7c7a" name="a257d7a38531936aa07ff2648e4eb7c7a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a257d7a38531936aa07ff2648e4eb7c7a">&#9670;&nbsp;</a></span>add_setting_set()</h2>
+<a id="a1f894dfdc36ca38bf825ed83c0321a55" name="a1f894dfdc36ca38bf825ed83c0321a55"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1f894dfdc36ca38bf825ed83c0321a55">&#9670;&nbsp;</a></span>add_setting_set() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -158,6 +161,12 @@ Public Member Functions</h2></td></tr>
           <td>(</td>
           <td class="paramtype">const __FlashStringHelper *&#160;</td>
           <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const __FlashStringHelper *&#160;</td>
+          <td class="paramname"><em>identifier</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -178,11 +187,62 @@ Public Member Functions</h2></td></tr>
 <p >Settings can be added after <code>setup</code> is called; current pages in browsers will not be updated, however..</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
+    <tr><td class="paramname">name</td><td>The name for the set; used for UI elements only. </td></tr>
+    <tr><td class="paramname">identifier</td><td>The identifier for the set; used in code. </td></tr>
+    <tr><td class="paramname">setting_set</td><td>The set of settings. Held as a reference; do not destroy the object passed in. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a257d7a38531936aa07ff2648e4eb7c7a" name="a257d7a38531936aa07ff2648e4eb7c7a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a257d7a38531936aa07ff2648e4eb7c7a">&#9670;&nbsp;</a></span>add_setting_set() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void grmcdorman::WebSettings::add_setting_set </td>
+          <td>(</td>
+          <td class="paramtype">const __FlashStringHelper *&#160;</td>
+          <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classgrmcdorman_1_1_setting_interface.html#af0b5441bd5c028ceaee2e1edf96249cd">SettingInterface::settings_list_t</a> &amp;&#160;</td>
+          <td class="paramname"><em>setting_set</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Add a setting set. </p>
+<p >This registers a setting set which will be wrapped in a <code><a class="el" href="classgrmcdorman_1_1_setting_panel.html" title="The Setting Panel is the controller for a set of Setting.">SettingPanel</a></code> and presented on the main page. The first set registered will be the default set shown when the page is first loaded.</p>
+<p >Settings can be added after <code>setup</code> is called; current pages in browsers will not be updated, however..</p>
+<p >This overload will use the set name for the set identifier as well.</p><ul>
+<li><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
     <tr><td class="paramname">name</td><td>The name for the set; also the name shown on the tab. </td></tr>
     <tr><td class="paramname">setting_set</td><td>The set of settings. Held as a reference; do not destroy the object passed in. </td></tr>
   </table>
   </dd>
 </dl>
+</li>
+</ul>
 
 </div>
 </div>
