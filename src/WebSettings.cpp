@@ -22,7 +22,7 @@ namespace grmcdorman
         const char * PROGMEM status_div = "<div class=\"status\">";
         //!< The style sheet. This could be stored gzipp'd to save space
         //!< and sent to the client that way.
-        const char *style PROGMEM =
+        const char style[] PROGMEM =
             ".tab {"
                 "overflow: hidden;"
                 "border: 1px solid #ccc;"
@@ -194,8 +194,9 @@ namespace grmcdorman
         ;
 
         //!< The Javascript sheet. This could be stored gzipp'd to save space
-        //!< and sent to the client that way.
-        const char *javascript_text PROGMEM =
+        //!< and sent to the client that way. At the moment this includes newlines
+        //!< to allow debugging in the browser.
+        const char javascript_text[] PROGMEM =
             "function openTab(evt, tabName) {\n"
                 "var i, tabcontent, tablinks;\n"
                 "tabcontent = document.getElementsByClassName(\"tabcontent\");\n"
@@ -233,18 +234,21 @@ namespace grmcdorman
             "}\n"
 
             "function handleSettingsGet() {\n"
-                "var r = JSON.parse(this.responseText);\n"
-                "Object.keys(r).forEach(t => {\n"
-                    "r[t].forEach(s => {\n"
-                        "setControlValue(t, s);\n"
-                    "});\n"
-                "});\n"
-                "loadNextTab();\n"
+                "var r = JSON.parse(this.responseText),\n"
+                    "k = Object.keys(r);\n"
+                "for (var i = 0; i < k.length; ++i)\n"
+                "{"
+                    "for (var j = 0; j < r[k[i]].length; ++j)\n"
+                    "{"
+                        "setControlValue(k[i], r[k[i]][j]);\n"
+                    "}\n"
+                "}\n"
+                "setTimeout(loadNextTab, 500);\n"
             "}\n"
 
             "function reloadTab(t) {\n"
-                "globalTabsToLoad = [t];"
-                "loadNextTab();"
+                "globalTabsToLoad = [t];\n"
+                "setTimeout(loadNextTab, 500);\n"
             "}\n"
 
             "function setControlValue(t, json) {\n"
@@ -301,14 +305,21 @@ namespace grmcdorman
 
             "var periodicUpdateList = [];"
 
+            // Update only the active tab, to minimize load.
+            // Should work in Chrome, IE 9.0+, Edge, Firefox, Safari, Opera.
             "function periodicUpdate() {\n"
                 "if (periodicUpdateList.length !== 0)\n"
                 "{\n"
-                    "for(var i = 0; i < periodicUpdateList.length; ++i)\n"
-                    "{\n"
-                        "globalTabsToLoad[i] = periodicUpdateList[i];\n"
-                    "}\n"
-                    "loadNextTab();\n"
+                    "var activeTab = document.getElementsByClassName(\"tabcontent active\")[0].id;\n"
+                    "for (var i = 0; i < periodicUpdateList.length; ++i)\n"
+                    "{"
+                        "if (periodicUpdateList[i].substring(0, activeTab.length + 1) === (activeTab + \"&\") ||"
+                            "periodicUpdateList[i] == activeTab)\n"
+                        "{"
+                            "globalTabsToLoad.push(periodicUpdateList[i]);"
+                        "}"
+                    "}"
+                    "setTimeout(loadNextTab, 500);\n"
                 "}\n"
             "}\n"
 
@@ -319,6 +330,36 @@ namespace grmcdorman
                     "document.location = \"/factoryreset?confirm=true\";\n"
                 "}"
             "}";
+    }
+
+    /**
+     * @brief This templated function copies chunks of a string array to the buffer.
+     *
+     * It is used both when sending the main page and when sending the style sheet and JavaScript.
+     *
+     * @tparam N                        The array size; inferred from the arguments.
+     * @param[in,out] buffer            The output buffer.
+     * @param maxLen                    The maximum buffer size.
+     * @param[in,out] size              On call, the used size of the buffer. Updated to the total consumed size on return.
+     * @param string_buffer             The string array being sent.
+     * @param[in,out] sent_static_size  The amount of the static string sent so far.
+     * @return true     All data in the string has been copied to the buffer.
+     * @return false    There is yet more data in the string to be copied to the buffer. Another chunk must be sent.
+     */
+    template<size_t N>
+    bool send_static_string(uint8_t *buffer, size_t maxLen, size_t &size, const char (&string_buffer)[N], size_t &sent_static_size)
+    {
+        size_t remaining = N - sent_static_size - 1;
+        if (remaining == 0)
+        {
+            return true;
+        }
+
+        size_t can_send = std::min(maxLen - size, remaining);
+        memcpy_P(&buffer[size], &string_buffer[sent_static_size], can_send);
+        size += can_send;
+        sent_static_size += can_send;
+        return can_send == remaining;
     }
 
     WebSettings::WebSettings(uint16_t port): server(port)
@@ -345,16 +386,53 @@ namespace grmcdorman
             request->send(response);
         });
 
-        // Note that these two could be embedded in the main page; however, doing
-        // them as separate URLs allows other pages to reference them.
-        server.on("/style.css", HTTP_GET, [] (AsyncWebServerRequest *request)
+        // Note that these two are embedded in the main page; however, doing
+        // them also as separate URLs allows other pages to reference them.
+        // The embedding is to maximize efficiency, in both memory usage and processing.
+        server.on("/style.css", HTTP_GET, [this] (AsyncWebServerRequest *request)
         {
-            request->send(200, F("text/css"), FPSTR(style));
+            // The server does not seem to be very happy sending massive chunks in one go.
+            // This allocation will be deleted when the chunked-write completes.
+            MainPageChunkContext *context = new MainPageChunkContext;
+            // WARNING: Do not pass local variables by reference to the lambda; this will not work properly
+            // on anything but the first call.
+            AsyncWebServerResponse *response = request->beginChunkedResponse(TEXT_HTML, [this, context] (uint8_t *buffer, size_t maxLen, size_t index) -> size_t {
+                if (index == 0)
+                {
+                    context->sent_static_size = 0;
+                }
+                size_t size = 0;
+                send_static_string(buffer, maxLen, size, style, context->sent_static_size);
+                if (size == 0)
+                {
+                    delete context;
+                }
+                return size;
+            });
+            request->send(response);
         });
 
-        server.on("/script.js", HTTP_GET, [] (AsyncWebServerRequest *request)
+        server.on("/script.js", HTTP_GET, [this] (AsyncWebServerRequest *request)
         {
-            request->send(200, F("text/javascript"), FPSTR(javascript_text));
+            // The server does not seem to be very happy sending massive chunks in one go.
+            // This allocation will be deleted when the chunked-write completes.
+            MainPageChunkContext *context = new MainPageChunkContext;
+            // WARNING: Do not pass local variables by reference to the lambda; this will not work properly
+            // on anything but the first call.
+            AsyncWebServerResponse *response = request->beginChunkedResponse(TEXT_HTML, [this, context] (uint8_t *buffer, size_t maxLen, size_t index) -> size_t {
+                if (index == 0)
+                {
+                    context->sent_static_size = 0;
+                }
+                size_t size = 0;
+                send_static_string(buffer, maxLen, size, javascript_text, context->sent_static_size);
+                if (size == 0)
+                {
+                    delete context;
+                }
+                return size;
+            });
+            request->send(response);
         });
 
         server.on("/settings/set", HTTP_POST, [this](AsyncWebServerRequest *request)
@@ -444,11 +522,6 @@ namespace grmcdorman
             });
         }
 
-        server.on("/logged-out", HTTP_GET, [this] (AsyncWebServerRequest *request){
-            request->send(200, TEXT_HTML, F("<b>Logged out</b>"));
-            generate_new_authentication();
-        });
-
         server.onNotFound([this](AsyncWebServerRequest *request) { on_not_found(request); });
 
         server.begin();
@@ -462,6 +535,7 @@ namespace grmcdorman
      *
      * @tparam N        Template parameter; automatically deduced from array size.
      * @param buffer    Output buffer.
+     * @param string    The string to copy to the output buffer.
      * @param size      Current used size in the output buffer.
      * @param maxLen    Maximum buffer size.
      */
@@ -498,10 +572,12 @@ namespace grmcdorman
             auto &panel = **context.current_panel;
             size_t name_length = panel.get_name_length();
             auto name = panel.get_name();
+            size_t identifier_length = panel.get_identifier_length();
+            auto identifier = panel.get_identifier();
 
             // Compute the expected text length.
             size_t len = basic_length + (first ? sizeof(active) -1 : 0) +
-                name_length * 2;
+                name_length + identifier_length;
 
             if (len + size > maxLen)
             {
@@ -516,8 +592,8 @@ namespace grmcdorman
                 first =- false;
             }
             buffer_append(buffer, onclick, size, maxLen);
-            memcpy_P(&buffer[size], name, name_length);
-            size += name_length;
+            memcpy_P(&buffer[size], identifier, identifier_length);
+            size += identifier_length;
             buffer_append(buffer, onclick_end, size, maxLen);
             memcpy_P(&buffer[size], name, name_length);
             size += name_length;
@@ -544,8 +620,8 @@ namespace grmcdorman
 
             bool first = context.current_panel == setting_panels.begin();
             const auto &panel = **context.current_panel;
-            size_t name_length = panel.get_name_length();
-            auto name = panel.get_name();
+            size_t identifier_length = panel.get_identifier_length();
+            auto identifier = panel.get_identifier();
 
             // Were the preliminaries written?
             if (context.starting_tab)
@@ -553,7 +629,7 @@ namespace grmcdorman
                 // Yes. Will the preliminaries fit?
                 size_t preliminary_len =
                     sizeof(tab_start) - 1 +
-                    name_length +
+                    identifier_length +
                     sizeof (tab_class) - 1 +
                     (first ? sizeof(first_tabbutton_begin) -1  + sizeof(active) - 1 : 0) +
                     sizeof (end_start) - 1;
@@ -572,8 +648,8 @@ namespace grmcdorman
 
                 buffer_append(buffer, tab_start, size, maxLen);
 
-                memcpy_P(&buffer[size], name, name_length);
-                size += name_length;
+                memcpy_P(&buffer[size], identifier, identifier_length);
+                size += identifier_length;
 
                 buffer_append(buffer, tab_class, size, maxLen);
                 if (first)
@@ -587,12 +663,12 @@ namespace grmcdorman
             }
 
             // Now, try to stuff in settings until done or out of room.
-            String panel_name(panel.get_name());
+            String panel_identifier(panel.get_identifier());
             String html;
             while (context.current_setting != panel.get_settings().end())
             {
                 const auto &setting = *context.current_setting;
-                html = setting->get_html(panel_name);
+                html = setting->get_html(panel_identifier);
                 if (html.length() + size > maxLen)
                 {
                     // Can't fit this settting.
@@ -696,10 +772,14 @@ namespace grmcdorman
         return true;
     }
 
-    size_t WebSettings::on_main_page_chunk(uint8_t *buffer, size_t maxLen, size_t , MainPageChunkContext *context_ptr)
+    size_t WebSettings::on_main_page_chunk(uint8_t *buffer, size_t maxLen, size_t index, MainPageChunkContext *context_ptr)
     {
         auto & context = *context_ptr;
         size_t size(0);
+        if (index == 0)
+        {
+            context.sent_static_size = 0;
+        }
 
         switch (context.state)
         {
@@ -708,14 +788,50 @@ namespace grmcdorman
                 // safe assumption, this string is rather short.
                 static const char main_page_begin_page[] PROGMEM =
                     "<!DOCTYPE html>"
+                    "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge,chrome=1\">"
                     "<html>"
-                        "<script src=\"/script.js\"></script>"
-                        "<link rel=\"stylesheet\" href=\"/style.css\">"
-                    "<body>"
+                        "<style>";
+                send_static_string(buffer, maxLen, size, main_page_begin_page, context.sent_static_size);
+                context.state = MainPageChunkState::STYLE_SHEET;
+                context.sent_static_size = 0;
+                // FALL THROUGH
+            case MainPageChunkState::STYLE_SHEET:
+                // The entire style sheet doesn't typically fit in one buffer.
+                if (!send_static_string(buffer, maxLen, size, style, context.sent_static_size))
+                {
+                    break;
+                }
+                context.state = MainPageChunkState::PRE_JAVASCRIPT;
+                context.sent_static_size = 0;
+                // FALL THROUGH
+            case MainPageChunkState::PRE_JAVASCRIPT:
+                static const char transition_style_to_script[] PROGMEM = "</style><script language=\"javascript\">";
+                if (!send_static_string(buffer, maxLen, size, transition_style_to_script, context.sent_static_size))
+                {
+                    break;
+                }
+                context.state = MainPageChunkState::JAVASCRIPT;
+                context.sent_static_size = 0;
+                // FALL THROUGH
+            case MainPageChunkState::JAVASCRIPT:
+                if (!send_static_string(buffer, maxLen, size, javascript_text, context.sent_static_size))
+                {
+                    break;
+                }
+                context.state = MainPageChunkState::POST_JAVASCRIPT;
+                context.sent_static_size = 0;
+                // FALL THROUGH
+            case MainPageChunkState::POST_JAVASCRIPT:
+                static const char transition_script_to_body[] PROGMEM =
+                    "</script><body>"
                         "<div id=\"disable_overlay\" class=\"disable_overlay\"></div>"
                         "<div class=\"tab\">";
-                buffer_append(buffer, main_page_begin_page, size, maxLen - 1);
+                if (!send_static_string(buffer, maxLen, size, transition_script_to_body, context.sent_static_size))
+                {
+                    break;
+                }
                 context.state = MainPageChunkState::TABBUTTON_HEADER;
+                context.sent_static_size = 0;
                 context.current_panel = setting_panels.begin();
                 context.current_setting = context.current_panel != setting_panels.end() ? setting_panels.front()->get_settings().begin() :
                     SettingInterface::settings_list_t::const_iterator();
@@ -726,6 +842,7 @@ namespace grmcdorman
                     break;
                 }
                 context.state = MainPageChunkState::TAB_BODY;
+                context.sent_static_size = 0;
                 context.current_panel = setting_panels.begin();
                 context.current_setting = context.current_panel != setting_panels.end() ? setting_panels.front()->get_settings().begin() :
                     SettingInterface::settings_list_t::const_iterator();
@@ -766,9 +883,9 @@ namespace grmcdorman
         return size;
     }
 
-    void WebSettings::add_setting_set(const __FlashStringHelper *name, const SettingInterface::settings_list_t &list)
+    void WebSettings::add_setting_set(const __FlashStringHelper *name, const __FlashStringHelper *identifier, const SettingInterface::settings_list_t &list)
     {
-        setting_panels.emplace_back(std::make_unique<SettingPanel>(name, list));
+        setting_panels.emplace_back(std::make_unique<SettingPanel>(name, identifier, list));
     }
 
     void WebSettings::loop()
@@ -902,15 +1019,34 @@ namespace grmcdorman
         auto response = new AsyncJsonResponse(false, 1024);
         auto & root = response->getRoot();
         auto & tab = request->arg("tab");
-        auto & setting = request->arg("setting"); // Optional. Value will be blank if not supplied on request.
+        // Collect all 'setting' arguments.
+        std::vector<const String *> requested_settings;
+        requested_settings.reserve(request->args());
+        int tabParameterCount(0);
+        for (size_t i = 0; i < request->args(); ++i)
+        {
+            if (request->argName(i) == "setting")
+            {
+                requested_settings.push_back(&request->arg(i));
+            }
+            if (request->argName(i) == "tab")
+            {
+                ++tabParameterCount;
+            }
+        }
+        if (tabParameterCount != 1)
+        {
+            request->send(400, TEXT_PLAIN, F("More than one query parameter 'tab' is not supported"));
+        }
         for (auto &setting_panel: setting_panels)
         {
-            if (tab == setting_panel->get_name())
+            if (tab == setting_panel->get_identifier())
             {
-                root[setting_panel->get_name()] = setting_panel->as_json(setting);
+                root[setting_panel->get_identifier()] = setting_panel->as_json(requested_settings);
             }
         }
         response->setLength();
+        response->addHeader("Cache-Control", "no-cache");
         request->send(response);
     }
 
