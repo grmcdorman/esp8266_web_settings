@@ -14,8 +14,8 @@
     "type": "git",
     "url": "https://github.com/grmcdorman/esp8266_web_settings.git"
   },
-  "version": "1.0.1",
+  "version": "1.1.0",
   "license": "MIT",
   "frameworks": "arduino",
-  "platforms": "*"
+  "platforms": "esp8266"
 }
