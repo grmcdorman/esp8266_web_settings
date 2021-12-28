@@ -90,6 +90,7 @@ namespace grmcdorman
          *
          */
         void loop();
+
         /**
          * @brief Add a setting set.
          *
@@ -99,10 +100,30 @@ namespace grmcdorman
          *
          * Settings can be added after `setup` is called; current pages in browsers will not be updated, however..
          *
+         * This overload will use the set name for the set identifier as well.
+         *-
          * @param name          The name for the set; also the name shown on the tab.
          * @param setting_set   The set of settings. Held as a reference; do not destroy the object passed in.
          */
-        void add_setting_set(const __FlashStringHelper *name, const SettingInterface::settings_list_t &setting_set);
+        void add_setting_set(const __FlashStringHelper *name, const SettingInterface::settings_list_t &setting_set)
+        {
+            add_setting_set(name, name, setting_set);
+        }
+
+        /**
+         * @brief Add a setting set.
+         *
+         * This registers a setting set which will be wrapped in a `SettingPanel` and presented
+         * on the main page. The first set registered will be the default set shown when the
+         * page is first loaded.
+         *
+         * Settings can be added after `setup` is called; current pages in browsers will not be updated, however..
+         *
+         * @param name          The name for the set; used for UI elements only.
+         * @param identifier    The identifier for the set; used in code.
+         * @param setting_set   The set of settings. Held as a reference; do not destroy the object passed in.
+         */
+        void add_setting_set(const __FlashStringHelper *name, const __FlashStringHelper *identifier, const SettingInterface::settings_list_t &setting_set);
 
         /**
          * @brief Get the server.
@@ -178,6 +199,10 @@ namespace grmcdorman
         //!< States for the main page chunk transmission.
         enum class MainPageChunkState {
             BEGIN_PAGE,         //!< Sending the initial portion.
+            STYLE_SHEET,        //!< Sending the style sheet body.
+            PRE_JAVASCRIPT,     //!< Closing off the style sheet, starting JavaScript.
+            JAVASCRIPT,         //!< Sending the javascript.
+            POST_JAVASCRIPT,    //!< Sending post-javascript up to the tab button header.
             TABBUTTON_HEADER,   //!< Sending the tab button header.
             TAB_BODY,           //!< Sending the tab bodies.
             FOOTER,             //!< Sending the footer.
@@ -191,9 +216,10 @@ namespace grmcdorman
             setting_panel_list_t::const_iterator current_panel;                 //!< Where applicable, the panel being processed.
             SettingInterface::settings_list_t::const_iterator current_setting;  //!< Where applicable, the setting in the panel being processed.
             bool starting_tab = true;                                           //!< If `true`, a tab body is to be started.
+            size_t sent_static_size = 0;                                        //!< For the style sheet and javascript, size sent so far.
         };
 
-        /**
+       /**
          * @brief Handle main page chunks.
          *
          * This writes each chunk into the buffer, and then returns the size written.
