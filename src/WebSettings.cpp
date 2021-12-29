@@ -1016,7 +1016,7 @@ namespace grmcdorman
         }
 
         // The request->send() deletes the response when done.
-        auto response = new AsyncJsonResponse(false, 1024);
+        auto response = new AsyncJsonResponse(false, 2048);
         auto & root = response->getRoot();
         auto & tab = request->arg("tab");
         // Collect all 'setting' arguments.

@@ -34,7 +34,7 @@ namespace grmcdorman
         // incomplete document. Short of ad-hoc text as JSON or other hacks
         // to perform chunked output, this is not really scalable.
         bool all = requested_settings.empty();
-        size_t stateSize = JSON_ARRAY_SIZE(settings.size()) + 512 * settings.size();
+        size_t stateSize = JSON_ARRAY_SIZE(settings.size()) + 768 * settings.size();
         DynamicJsonDocument doc(stateSize);
         doc.capacity();
         JsonArray array = doc.to<JsonArray>();
