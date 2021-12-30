@@ -36,7 +36,6 @@ namespace grmcdorman
         bool all = requested_settings.empty();
         size_t stateSize = JSON_ARRAY_SIZE(settings.size()) + 512 * settings.size();
         DynamicJsonDocument doc(stateSize);
-        doc.capacity();
         JsonArray array = doc.to<JsonArray>();
 
         for(auto &setting: settings)

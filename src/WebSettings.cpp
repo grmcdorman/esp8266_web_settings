@@ -1015,9 +1015,6 @@ namespace grmcdorman
             request->send(400, TEXT_PLAIN, F("Query parameter 'tab' missing"));
         }
 
-        // The request->send() deletes the response when done.
-        auto response = new AsyncJsonResponse(false, 1024);
-        auto & root = response->getRoot();
         auto & tab = request->arg("tab");
         // Collect all 'setting' arguments.
         std::vector<const String *> requested_settings;
@@ -1038,13 +1035,23 @@ namespace grmcdorman
         {
             request->send(400, TEXT_PLAIN, F("More than one query parameter 'tab' is not supported"));
         }
-        for (auto &setting_panel: setting_panels)
+        auto target_panel = std::find_if(setting_panels.begin(), setting_panels.end(), [&tab] (const std::unique_ptr<SettingPanel> &panel)
         {
-            if (tab == setting_panel->get_identifier())
-            {
-                root[setting_panel->get_identifier()] = setting_panel->as_json(requested_settings);
-            }
+            return strcmp_P(tab.c_str(), reinterpret_cast<const char *>(panel->get_identifier())) == 0;
+        });
+        if (target_panel == setting_panels.end())
+        {
+            request->send(400, TEXT_PLAIN, F("Requested tab does not exist"));
+            return;
         }
+
+        // The request->send() deletes the response when done.
+        // Allocate 128 bytes per setting in the panel. For the panel
+        // with the most settings in esp8266_device_framework, which is 13 settings,
+        // that works out to 1792 bytes.
+        auto response = new AsyncJsonResponse(false, 128 * (*target_panel)->get_settings().size());
+        auto & root = response->getRoot();
+        root[(*target_panel)->get_identifier()] = (*target_panel)->as_json(requested_settings);
         response->setLength();
         response->addHeader("Cache-Control", "no-cache");
         request->send(response);
